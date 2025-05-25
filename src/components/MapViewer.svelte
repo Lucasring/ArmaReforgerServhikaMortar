@@ -148,7 +148,7 @@
           
           // Convert to viewport coordinates using the container size
           const containerSize = viewer.viewport.getContainerSize();
-          const SCALE_CORRECTION = 1.2875;
+          const SCALE_CORRECTION = 1.2875 / 3.333333333333333;
           const minRange = minRangePixels / (containerSize.x * 25 * SCALE_CORRECTION);
           const maxRange = maxRangePixels / (containerSize.x * 25 * SCALE_CORRECTION);
           

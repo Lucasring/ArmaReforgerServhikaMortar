@@ -366,7 +366,7 @@
       <span class="label">Azimuth:</span>
       <span class="value">
         {azimuth !== null
-          ? `${azimuth % 1 === 0 ? azimuth.toFixed(1) : azimuth.toFixed(1)}° (${Math.round(azimuth * (6400 / 360))} mils)`
+          ? `${azimuth % 1 === 0 ? azimuth.toFixed(1) : azimuth.toFixed(1)}°`
           : "-"}
       </span>
     </div>

@@ -119,13 +119,49 @@
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     overlay.appendChild(svg);
+
+    // Create and draw rings
+    const createRingPoints = (radius, center_x, center_y) => {
+      const points = [];
+      const segments = 64;
+      for (let i = 0; i < segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        const point = new OpenSeadragon.Point(
+          center_x + Math.cos(angle) * radius,
+          center_y + Math.sin(angle) * radius
+        );
+        const screenPoint = viewer.viewport.pixelFromPoint(point);
+        points.push(screenPoint);
+      }
+      return points;
+    };
+
+    // Add range labels
+    const addRangeLabel = (rangeMeters, radius, position) => {
+      const point = new OpenSeadragon.Point(
+        position.x,
+        position.y - radius
+      );
+      const screenPoint = viewer.viewport.pixelFromPoint(point);
+      
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', screenPoint.x);
+      label.setAttribute('y', screenPoint.y - 5);
+      label.setAttribute('fill', 'black');
+      label.setAttribute('font-size', '18px');
+      label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('stroke', 'black');
+      label.setAttribute('stroke-width', '0.5');
+      label.textContent = `${Math.round(rangeMeters)}m`;
+      svg.appendChild(label);
+    };
     
     if (mortarPosition) {
       const mortarPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(mortarPosition.x, mortarPosition.y));
       const mortarCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       mortarCircle.setAttribute('cx', mortarPoint.x);
       mortarCircle.setAttribute('cy', mortarPoint.y);
-      mortarCircle.setAttribute('r', '10');
+      mortarCircle.setAttribute('r', '5');
       mortarCircle.setAttribute('fill', 'blue');
       mortarCircle.setAttribute('stroke', 'white');
       mortarCircle.setAttribute('stroke-width', '2');
@@ -154,24 +190,8 @@
           
           console.log('Ring viewport ranges:', { minRange, maxRange });
           
-          // Create and draw rings
-          const createRingPoints = (radius) => {
-            const points = [];
-            const segments = 64;
-            for (let i = 0; i < segments; i++) {
-              const angle = (i / segments) * Math.PI * 2;
-              const point = new OpenSeadragon.Point(
-                mortarPosition.x + Math.cos(angle) * radius,
-                mortarPosition.y + Math.sin(angle) * radius
-              );
-              const screenPoint = viewer.viewport.pixelFromPoint(point);
-              points.push(screenPoint);
-            }
-            return points;
-          };
-          
           // Draw min range ring
-          const minRingPoints = createRingPoints(minRange);
+          const minRingPoints = createRingPoints(minRange, mortarPosition.x, mortarPosition.y);
           const minRingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           minRingPath.setAttribute('d', `M ${minRingPoints.map(p => `${p.x},${p.y}`).join(' L ')} Z`);
           minRingPath.setAttribute('fill', 'none');
@@ -180,7 +200,7 @@
           svg.appendChild(minRingPath);
           
           // Draw max range ring
-          const maxRingPoints = createRingPoints(maxRange);
+          const maxRingPoints = createRingPoints(maxRange, mortarPosition.x, mortarPosition.y);
           const maxRingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           maxRingPath.setAttribute('d', `M ${maxRingPoints.map(p => `${p.x},${p.y}`).join(' L ')} Z`);
           maxRingPath.setAttribute('fill', 'none');
@@ -188,43 +208,40 @@
           maxRingPath.setAttribute('stroke-width', '3');
           svg.appendChild(maxRingPath);
           
-          // Add range labels
-          const addRangeLabel = (rangeMeters, radius) => {
-            const point = new OpenSeadragon.Point(
-              mortarPosition.x,
-              mortarPosition.y - radius
-            );
-            const screenPoint = viewer.viewport.pixelFromPoint(point);
-            
-            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            label.setAttribute('x', screenPoint.x);
-            label.setAttribute('y', screenPoint.y - 5);
-            label.setAttribute('fill', 'white');
-            label.setAttribute('font-size', '14px');
-            label.setAttribute('text-anchor', 'middle');
-            label.setAttribute('stroke', 'black');
-            label.setAttribute('stroke-width', '0.5');
-            label.textContent = `${Math.round(rangeMeters)}m`;
-            svg.appendChild(label);
-          };
-          
-          addRangeLabel(minRangeMeters, minRange);
-          addRangeLabel(maxRangeMeters, maxRange);
+          addRangeLabel(minRangeMeters, minRange, mortarPosition);
+          addRangeLabel(maxRangeMeters, maxRange, mortarPosition);
         }
       }
     }
     
+    // Draw target position
     if (targetPosition) {
       const targetPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(targetPosition.x, targetPosition.y));
       const targetCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       targetCircle.setAttribute('cx', targetPoint.x);
       targetCircle.setAttribute('cy', targetPoint.y);
-      targetCircle.setAttribute('r', '10');
+      targetCircle.setAttribute('r', '5');
       targetCircle.setAttribute('fill', 'red');
       targetCircle.setAttribute('stroke', 'white');
       targetCircle.setAttribute('stroke-width', '2');
       svg.appendChild(targetCircle);
+
+      // Draw dispersion ring
+      const dispersionData = selectedAmmoType.ballistics.dispersions[selectedRing];
+      const containerSize = viewer.viewport.getContainerSize();
+      const SCALE_CORRECTION = 1.2875 / 3.333333333333333;
+      const dispersionRangePixels = dispersionData / MAP_SCALE_METERS_PER_PIXEL;
+      const dispersionRange = dispersionRangePixels / (containerSize.x * 25 * SCALE_CORRECTION); 
+      const dispersionRingPoints = createRingPoints(dispersionRange, targetPosition.x, targetPosition.y);
+      const dispersionRingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      dispersionRingPath.setAttribute('d', `M ${dispersionRingPoints.map(p => `${p.x},${p.y}`).join(' L ')} Z`);
+      dispersionRingPath.setAttribute('fill', 'rgba(255, 0, 0, 0.25)');
+      dispersionRingPath.setAttribute('stroke', 'rgba(255, 0, 0, 0.5)');
+      dispersionRingPath.setAttribute('stroke-width', '3');
+      svg.appendChild(dispersionRingPath);
       
+      addRangeLabel(dispersionData, dispersionRange, targetPosition);
+
       // Draw line between mortar and target
       if (mortarPosition) {
         const mortarPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(mortarPosition.x, mortarPosition.y));

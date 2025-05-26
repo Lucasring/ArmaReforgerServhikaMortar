@@ -9,6 +9,13 @@ export const mortarTypes = [
         minRange: 50,
         maxRange: 1500,
         ballistics: {
+          dispersions : [
+            8.0,
+            13.0,
+            19.0,
+            27.0,
+            34.0
+          ],
           rings: [
             // Ring 0 (outermost)
             [
@@ -100,6 +107,12 @@ export const mortarTypes = [
         minRange: 50,
         maxRange: 1500,
         ballistics: {
+          dispersions : [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
           rings: [
             // Ring 0 (outermost)
             [
@@ -161,6 +174,12 @@ export const mortarTypes = [
         minRange: 50,
         maxRange: 1500,
         ballistics: {
+          dispersions : [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
           rings: [
             // Ring 1 (outermost)
             [

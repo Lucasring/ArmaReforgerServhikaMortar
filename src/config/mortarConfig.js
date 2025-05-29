@@ -7,7 +7,7 @@ export const mortarTypes = [
       {
         name: "HE Shell",
         minRange: 50,
-        maxRange: 1500,
+        maxRange: 2300,
         ballistics: {
           dispersions : [
             8.0,
@@ -105,7 +105,7 @@ export const mortarTypes = [
       {
         name: "Smoke Shell",
         minRange: 50,
-        maxRange: 1500,
+        maxRange: 1700,
         ballistics: {
           dispersions : [
             0.0,
@@ -171,8 +171,8 @@ export const mortarTypes = [
       },
       {
         name: "Flare Shell",
-        minRange: 50,
-        maxRange: 1500,
+        minRange: 100,
+        maxRange: 2200,
         ballistics: {
           dispersions : [
             0.0,
@@ -256,67 +256,111 @@ export const mortarTypes = [
     ammo: [
       {
         name: "HE Shell",
-        minRange: 100,
-        maxRange: 2000,
+        minRange: 50,
+        maxRange: 2900,
         ballistics: {
+          dispersions : [
+            6.0,
+            14.0,
+            24.0,
+            33.0,
+            42.0
+          ],
           // Each ring contains an array of range/elevation pairs
           rings: [
-            // Ring 1 (outermost)
+            // Ring 0 (outermost)
             [
-              { range: 2000, elevationMils: 800 },
-              { range: 1500, elevationMils: 978 },
-              { range: 1000, elevationMils: 1244 },
-              { range: 500, elevationMils: 1511 }
+              { range: 50,  elevationMils: 1540 },
+              { range: 100, elevationMils: 1479 },
+              { range: 150, elevationMils: 1416 },
+              { range: 200, elevationMils: 1350 },
+              { range: 250, elevationMils: 1279 },
+              { range: 300, elevationMils: 1201 },
+              { range: 350, elevationMils: 1106 },
+              { range: 400, elevationMils:  955 },
+            ],
+            // Ring 1
+            [
+              { range: 100, elevationMils: 1547 },
+              { range: 200, elevationMils: 1492 },
+              { range: 300, elevationMils: 1437 },
+              { range: 400, elevationMils: 1378 },
+              { range: 500, elevationMils: 1317 },
+              { range: 600, elevationMils: 1249 },
+              { range: 700, elevationMils: 1174 },
+              { range: 800, elevationMils: 1085 },
+              { range: 900, elevationMils: 954  },
             ],
             // Ring 2
             [
-              { range: 2000, elevationMils: 853 },
-              { range: 1500, elevationMils: 1031 },
-              { range: 1000, elevationMils: 1298 },
-              { range: 500, elevationMils: 1564 }
+              { range: 200,  elevationMils: 1538 },
+              { range: 300,  elevationMils: 1507 },
+              { range: 400,  elevationMils: 1475 },
+              { range: 500,  elevationMils: 1443 },
+              { range: 600,  elevationMils: 1410 },
+              { range: 700,  elevationMils: 1376 },
+              { range: 800,  elevationMils: 1341 },
+              { range: 900,  elevationMils: 1305 },
+              { range: 1000, elevationMils: 1266 },
+              { range: 1100, elevationMils: 1225 },
+              { range: 1200, elevationMils: 1180 },
+              { range: 1300, elevationMils: 1132 },
+              { range: 1400, elevationMils: 1076 },
+              { range: 1500, elevationMils: 1009 },
+              { range: 1600, elevationMils:  912 },
             ],
             // Ring 3
             [
-              { range: 2000, elevationMils: 907 },
-              { range: 1500, elevationMils: 1084 },
-              { range: 1000, elevationMils: 1351 },
-              { range: 500, elevationMils: 1618 }
+              { range: 300,  elevationMils: 1534 },
+              { range: 400,  elevationMils: 1511 },
+              { range: 500,  elevationMils: 1489 },
+              { range: 600,  elevationMils: 1466 },
+              { range: 700,  elevationMils: 1442 },
+              { range: 800,  elevationMils: 1419 },
+              { range: 900,  elevationMils: 1395 },
+              { range: 1000, elevationMils: 1370 },
+              { range: 1100, elevationMils: 1344 },
+              { range: 1200, elevationMils: 1318 },
+              { range: 1300, elevationMils: 1291 },
+              { range: 1400, elevationMils: 1263 },
+              { range: 1500, elevationMils: 1233 },
+              { range: 1600, elevationMils: 1202 },
+              { range: 1700, elevationMils: 1169 },
+              { range: 1800, elevationMils: 1133 },
+              { range: 1900, elevationMils: 1094 },
+              { range: 2000, elevationMils: 1051 },
+              { range: 2100, elevationMils:  999 },
+              { range: 2200, elevationMils:  931 },
+              { range: 2300, elevationMils:  801 },
             ],
             // Ring 4
             [
-              { range: 400, elevationMils: 1531 },
-              { range: 500, elevationMils: 1514 },
-              { range: 600, elevationMils: 1496 },
-              { range: 700, elevationMils: 1478 },
-              { range: 800, elevationMils: 1460 },
-              { range: 900, elevationMils: 1442 },
+              { range: 400,  elevationMils: 1531 },
+              { range: 500,  elevationMils: 1514 },
+              { range: 600,  elevationMils: 1496 },
+              { range: 700,  elevationMils: 1478 },
+              { range: 800,  elevationMils: 1460 },
+              { range: 900,  elevationMils: 1442 },
               { range: 1000, elevationMils: 1424 },
               { range: 1100, elevationMils: 1405 },
               { range: 1200, elevationMils: 1385 },
-              { range: 1300, elevationMils: 1366 },
+              { range: 1300, elevationMils: 1365 },
               { range: 1400, elevationMils: 1346 },
-              { range: 1500, elevationMils: 1326 },
+              { range: 1500, elevationMils: 1325 },
               { range: 1600, elevationMils: 1305 },
               { range: 1700, elevationMils: 1283 },
               { range: 1800, elevationMils: 1261 },
               { range: 1900, elevationMils: 1238 },
               { range: 2000, elevationMils: 1214 },
-              { range: 2100, elevationMils: 1188 },
+              { range: 2100, elevationMils: 1118 },
               { range: 2200, elevationMils: 1162 },
               { range: 2300, elevationMils: 1134 },
               { range: 2400, elevationMils: 1104 },
               { range: 2500, elevationMils: 1070 },
               { range: 2600, elevationMils: 1034 },
-              { range: 2700, elevationMils: 993 },
-              { range: 2800, elevationMils: 942 },
-              { range: 2900, elevationMils: 870 }
-            ],
-            // Ring 5
-            [
-              { range: 2000, elevationMils: 1013 },
-              { range: 1500, elevationMils: 1190 },
-              { range: 1000, elevationMils: 1458 },
-              { range: 500, elevationMils: 1724 }
+              { range: 2700, elevationMils:  993 },
+              { range: 2800, elevationMils:  942 },
+              { range: 2900, elevationMils:  870 },
             ]
           ]
         }

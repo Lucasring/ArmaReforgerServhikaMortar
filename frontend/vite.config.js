@@ -2,18 +2,16 @@ import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
-  plugins: [
-    svelte()
-  ],
+  plugins: [svelte()],
   server: {
     port: 3000,
-    host: true, // This allows external access
-    headers: {
-      // 'Access-Control-Allow-Origin': '*',
-      // 'Content-Type': 'application/javascript'
-    }
+    host: true,
+    headers: {}
   },
   optimizeDeps: {
     include: ['svelte']
+  },
+  build: {
+    outDir: '../deployment/build'
   }
 });

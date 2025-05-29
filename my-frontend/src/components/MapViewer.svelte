@@ -1,22 +1,36 @@
 <script>
+  import { run, stopPropagation } from 'svelte/legacy';
+
   import { onMount } from "svelte";
   import OpenSeadragon from "openseadragon";
   import { MAP_SCALE_METERS_PER_PIXEL } from "../config/mortarConfig";
 
-  export let selectedMortarType;
-  export let selectedAmmoType;
-  export let selectedRing;
 
-  // Export these variables so they can be used by parent components
-  export let mortarPosition = null;
-  export let targetPosition = null;
+  
+  /**
+   * @typedef {Object} Props
+   * @property {any} selectedMortarType
+   * @property {any} selectedAmmoType
+   * @property {any} selectedRing
+   * @property {any} [mortarPosition] - Export these variables so they can be used by parent components
+   * @property {any} [targetPosition]
+   */
+
+  /** @type {Props} */
+  let {
+    selectedMortarType,
+    selectedAmmoType,
+    selectedRing,
+    mortarPosition = $bindable(null),
+    targetPosition = $bindable(null)
+  } = $props();
 
   let viewer;
   let overlay;
-  let viewerElement;
+  let viewerElement = $state();
   let contextMenu;
-  let contextMenuPosition = { x: 0, y: 0 };
-  let showContextMenu = false;
+  let contextMenuPosition = $state({ x: 0, y: 0 });
+  let showContextMenu = $state(false);
   let isDragging = false;
   let lastClickTime = 0;
   let viewMapSize = { x: 0, y: 0 };
@@ -369,29 +383,37 @@
   }
 
   // Update overlay when mortar or ammo type changes
-  $: if (selectedMortarType && selectedAmmoType) {
-    console.log("Mortar or ammo type changed, updating overlay");
-    updateOverlay();
-  }
+  run(() => {
+    if (selectedMortarType && selectedAmmoType) {
+      console.log("Mortar or ammo type changed, updating overlay");
+      updateOverlay();
+    }
+  });
 
   // Update overlay when ring changes
-  $: if (selectedRing !== undefined) {
-    console.log("Ring changed to:", selectedRing, "updating overlay");
-    updateOverlay();
-  }
+  run(() => {
+    if (selectedRing !== undefined) {
+      console.log("Ring changed to:", selectedRing, "updating overlay");
+      updateOverlay();
+    }
+  });
 
   // Update overlay when positions change
-  $: if (mortarPosition || targetPosition) {
-    console.log("Position changed, updating overlay");
-    updateOverlay();
-  }
+  run(() => {
+    if (mortarPosition || targetPosition) {
+      console.log("Position changed, updating overlay");
+      updateOverlay();
+    }
+  });
 
   // Add and remove document click listener
-  $: if (showContextMenu) {
-    document.addEventListener("click", handleOutsideClick);
-  } else {
-    document.removeEventListener("click", handleOutsideClick);
-  }
+  run(() => {
+    if (showContextMenu) {
+      document.addEventListener("click", handleOutsideClick);
+    } else {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+  });
 </script>
 
 <div class="map-container">
@@ -405,7 +427,7 @@
       <button
         type="button"
         class="menu-item"
-        on:click|stopPropagation={(e) => handleMenuClick("mortar", e)}
+        onclick={stopPropagation((e) => handleMenuClick("mortar", e))}
         role="menuitem"
       >
         Set Mortar Position
@@ -413,7 +435,7 @@
       <button
         type="button"
         class="menu-item"
-        on:click|stopPropagation={(e) => handleMenuClick("target", e)}
+        onclick={stopPropagation((e) => handleMenuClick("target", e))}
         role="menuitem"
       >
         Set Target Position

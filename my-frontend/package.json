@@ -1,7 +1,7 @@
 {
-  "name": "arma-reforger-mortar-helper",
-  "version": "1.0.0",
+  "name": "my-frontend",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
-    "svelte": "^5.33.10",
+    "svelte": "^5.28.1",
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "openseadragon": "^5.0.1"
+    	"openseadragon": "^5.0.1"
   }
 }

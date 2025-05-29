@@ -1,17 +1,13 @@
+// vite.config.js
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
-  plugins: [svelte()],
-  server: {
-    port: 3000,
-    host: true,
-    headers: {}
-  },
-  optimizeDeps: {
-    include: ['svelte']
-  },
-  build: {
-    outDir: '../deployment/build'
-  }
+  plugins: [
+    svelte({
+      hot: false    // ← disable HMR entirely
+    })
+  ],
+  server: { port: 3000, host: true },
+  build: { outDir: '../deployment/build' }
 });

@@ -1,24 +1,38 @@
 <script>
+  import { run } from 'svelte/legacy';
+
   import { createEventDispatcher } from "svelte";
   import {
     MAP_SCALE_METERS_PER_PIXEL,
     mortarTypes,
   } from "../config/mortarConfig";
 
-  export let selectedMortarType;
-  export let selectedAmmoType;
-  export let mortarPosition;
-  export let targetPosition;
-  export let selectedRing = 0; // Default to outermost ring (Ring 0)
+  /**
+   * @typedef {Object} Props
+   * @property {any} selectedMortarType
+   * @property {any} selectedAmmoType
+   * @property {any} mortarPosition
+   * @property {any} targetPosition
+   * @property {number} [selectedRing] - Default to outermost ring (Ring 0)
+   */
+
+  /** @type {Props} */
+  let {
+    selectedMortarType,
+    selectedAmmoType,
+    mortarPosition,
+    targetPosition,
+    selectedRing = $bindable(0)
+  } = $props();
 
   const dispatch = createEventDispatcher();
 
   // Declare variables for calculations
-  let distance = null;
-  let azimuth = null;
-  let elevation = null;
-  let autoSelectRing = false;
-  let rangeWarning = "";
+  let distance = $state(null);
+  let azimuth = $state(null);
+  let elevation = $state(null);
+  let autoSelectRing = $state(false);
+  let rangeWarning = $state("");
 
   function findAppropriateRing(range, ballistics) {
     if (!ballistics || !ballistics.rings || ballistics.rings.length === 0) {
@@ -239,7 +253,7 @@
   }
 
   // Make calculations reactive to all inputs
-  $: {
+  run(() => {
     if (mortarPosition && targetPosition) {
       const newDistance = calculateDistance(mortarPosition, targetPosition);
       const newAzimuth = calculateAzimuth(mortarPosition, targetPosition);
@@ -275,10 +289,10 @@
       azimuth = null;
       rangeWarning = "";
     }
-  }
+  });
 
   // Separate reactive statement for elevation calculation
-  $: {
+  run(() => {
     if (distance !== null && selectedAmmoType && selectedAmmoType.ballistics) {
       const ringData = selectedAmmoType.ballistics.rings[selectedRing];
       if (ringData && ringData.length >= 2) {
@@ -289,19 +303,21 @@
         // Don't set elevation to null, keep the last valid elevation
       }
     }
-  }
+  });
 
   // Debug logging
-  $: console.log("State update:", {
-    selectedRing,
-    distance,
-    azimuth,
-    elevation,
-    autoSelectRing,
-    hasMortarPosition: !!mortarPosition,
-    hasTargetPosition: !!targetPosition,
-    hasAmmoType: !!selectedAmmoType,
-    ringData: selectedAmmoType?.ballistics?.rings?.[selectedRing],
+  run(() => {
+    console.log("State update:", {
+      selectedRing,
+      distance,
+      azimuth,
+      elevation,
+      autoSelectRing,
+      hasMortarPosition: !!mortarPosition,
+      hasTargetPosition: !!targetPosition,
+      hasAmmoType: !!selectedAmmoType,
+      ringData: selectedAmmoType?.ballistics?.rings?.[selectedRing],
+    });
   });
 </script>
 
@@ -311,7 +327,7 @@
   <div class="selectors">
     <div class="selector">
       <label for="mortar-type">Mortar Type:</label>
-      <select id="mortar-type" on:change={handleMortarTypeChange}>
+      <select id="mortar-type" onchange={handleMortarTypeChange}>
         {#each mortarTypes as mortar}
           <option value={mortar.name}>{mortar.name}</option>
         {/each}
@@ -320,7 +336,7 @@
 
     <div class="selector">
       <label for="ammo-type">Ammo Type:</label>
-      <select id="ammo-type" on:change={handleAmmoTypeChange}>
+      <select id="ammo-type" onchange={handleAmmoTypeChange}>
         {#if selectedMortarType && selectedMortarType.ammo}
           {#each selectedMortarType.ammo as ammo}
             <option value={ammo.name}>{ammo.name}</option>
@@ -334,7 +350,7 @@
       <select
         id="ring-select"
         bind:value={selectedRing}
-        on:change={handleRingChange}
+        onchange={handleRingChange}
       >
         {#if selectedAmmoType && selectedAmmoType.ballistics && selectedAmmoType.ballistics.rings}
           {#each selectedAmmoType.ballistics.rings as _, i}
@@ -349,7 +365,7 @@
         <input
           type="checkbox"
           bind:checked={autoSelectRing}
-          on:change={handleAutoSelectChange}
+          onchange={handleAutoSelectChange}
         />
         Auto-select Ring
       </label>

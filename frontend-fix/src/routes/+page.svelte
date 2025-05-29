@@ -1,7 +1,7 @@
 <script>
-  import MapViewer from './components/MapViewer.svelte';
-  import ControlPanel from './components/ControlPanel.svelte';
-  import { mortarTypes } from '../../frontend-fix/src/config/mortarConfig';
+  import MapViewer from '../components/MapViewer.svelte';
+  import ControlPanel from '../components/ControlPanel.svelte';
+  import { mortarTypes } from '../config/mortarConfig';
   
   let selectedMortarType = $state(mortarTypes[0]);
   let selectedAmmoType = $state(mortarTypes[0].ammo[0]);

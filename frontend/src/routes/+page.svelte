@@ -1,13 +1,13 @@
 <script>
-  import MapViewer from './components/MapViewer.svelte';
-  import ControlPanel from './components/ControlPanel.svelte';
-  import { mortarTypes } from './config/mortarConfig';
+  import MapViewer from '../components/MapViewer.svelte';
+  import ControlPanel from '../components/ControlPanel.svelte';
+  import { mortarTypes } from '../config/mortarConfig';
   
-  let selectedMortarType = mortarTypes[0];
-  let selectedAmmoType = mortarTypes[0].ammo[0];
-  let mortarPosition = null;
-  let targetPosition = null;
-  let selectedRing = 0;
+  let selectedMortarType = $state(mortarTypes[0]);
+  let selectedAmmoType = $state(mortarTypes[0].ammo[0]);
+  let mortarPosition = $state(null);
+  let targetPosition = $state(null);
+  let selectedRing = $state(0);
   
   function handleMortarTypeChange(event) {
     selectedMortarType = event.detail;

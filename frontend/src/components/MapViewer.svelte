@@ -1,28 +1,42 @@
 <script>
+  import { run, stopPropagation } from 'svelte/legacy';
+
   import { onMount } from "svelte";
   import OpenSeadragon from "openseadragon";
   import { MAP_SCALE_METERS_PER_PIXEL } from "../config/mortarConfig";
 
-  export let selectedMortarType;
-  export let selectedAmmoType;
-  export let selectedRing;
 
-  // Export these variables so they can be used by parent components
-  export let mortarPosition = null;
-  export let targetPosition = null;
+  
+  /**
+   * @typedef {Object} Props
+   * @property {any} selectedMortarType
+   * @property {any} selectedAmmoType
+   * @property {any} selectedRing
+   * @property {any} [mortarPosition] - Export these variables so they can be used by parent components
+   * @property {any} [targetPosition]
+   */
+
+  /** @type {Props} */
+  let {
+    selectedMortarType,
+    selectedAmmoType,
+    selectedRing,
+    mortarPosition = $bindable(null),
+    targetPosition = $bindable(null)
+  } = $props();
 
   let viewer;
   let overlay;
-  let viewerElement;
+  let viewerElement = $state();
   let contextMenu;
-  let contextMenuPosition = { x: 0, y: 0 };
-  let showContextMenu = false;
+  let contextMenuPosition = $state({ x: 0, y: 0 });
+  let showContextMenu = $state(false);
   let isDragging = false;
   let lastClickTime = 0;
   let viewMapSize = { x: 0, y: 0 };
 
   onMount(() => {
-    console.log("MapViewer mounted");
+    ;
 
     // Ensure the viewer element exists
     if (!viewerElement) {
@@ -49,14 +63,14 @@
         springStiffness: 150,
       });
 
-      console.log("OpenSeadragon viewer initialized");
+      ;
 
       // Hook to loaded map
       viewer.addHandler("open", () => {
         const item = viewer.world.getItemAt(0);
         if (item) {
           viewMapSize = item.getContentSize();
-          console.log("Map size:", viewMapSize);
+          // console.log("Map size:", viewMapSize);
         } else {
           console.warn("No map item loaded yet.");
         }
@@ -74,7 +88,7 @@
 
       // Add double-click handler to the viewer element
       viewerElement.addEventListener("dblclick", (event) => {
-        console.log("Viewer double-clicked");
+        ;
         const rect = viewerElement.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
@@ -95,7 +109,7 @@
 
       // Add ready handler
       viewer.addHandler("ready", () => {
-        console.log("Viewer is ready");
+        ;
       });
     } catch (error) {
       console.error("Error initializing OpenSeadragon:", error);
@@ -111,22 +125,11 @@
 
   function updateOverlay() {
     if (!overlay || !viewer) {
-      console.log("Cannot update overlay: overlay or viewer not ready");
+      ;
       return;
     }
 
     let container = viewer.viewport.getContainerSize();
-    console.log("Updating overlay with:", {
-      selectedRing,
-      container: container.x,
-      pixels: 50.0 / MAP_SCALE_METERS_PER_PIXEL,
-      ratio: (container.x / viewMapSize.x),
-      adj: (50.0 / MAP_SCALE_METERS_PER_PIXEL) * (container.x / viewMapSize.x) / container.x,
-      // hasMortarPosition: !!mortarPosition,
-      // hasTargetPosition: !!targetPosition,
-      // hasAmmoType: !!selectedAmmoType,
-      // ringData: selectedAmmoType?.ballistics?.rings?.[selectedRing],
-    });
 
     overlay.innerHTML = "";
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -340,7 +343,7 @@
   function handleMenuClick(type, event) {
     event.preventDefault();
     event.stopPropagation();
-    console.log("Menu item clicked:", type);
+    // console.log("Menu item clicked:", type);
 
     // Convert pixel coordinates to OpenSeadragon point format
     const pixel = new OpenSeadragon.Point(
@@ -350,10 +353,10 @@
     const viewportPoint = viewer.viewport.pointFromPixel(pixel);
 
     if (type === "mortar") {
-      console.log("Setting mortar position:", viewportPoint);
+      // console.log("Setting mortar position:", viewportPoint);
       mortarPosition = { x: viewportPoint.x, y: viewportPoint.y };
     } else if (type === "target") {
-      console.log("Setting target position:", viewportPoint);
+      // console.log("Setting target position:", viewportPoint);
       targetPosition = { x: viewportPoint.x, y: viewportPoint.y };
     }
 
@@ -369,29 +372,37 @@
   }
 
   // Update overlay when mortar or ammo type changes
-  $: if (selectedMortarType && selectedAmmoType) {
-    console.log("Mortar or ammo type changed, updating overlay");
-    updateOverlay();
-  }
+  run(() => {
+    if (selectedMortarType && selectedAmmoType) {
+      ;
+      updateOverlay();
+    }
+  });
 
   // Update overlay when ring changes
-  $: if (selectedRing !== undefined) {
-    console.log("Ring changed to:", selectedRing, "updating overlay");
-    updateOverlay();
-  }
+  run(() => {
+    if (selectedRing !== undefined) {
+      ;
+      updateOverlay();
+    }
+  });
 
   // Update overlay when positions change
-  $: if (mortarPosition || targetPosition) {
-    console.log("Position changed, updating overlay");
-    updateOverlay();
-  }
+  run(() => {
+    if (mortarPosition || targetPosition) {
+      ;
+      updateOverlay();
+    }
+  });
 
   // Add and remove document click listener
-  $: if (showContextMenu) {
-    document.addEventListener("click", handleOutsideClick);
-  } else {
-    document.removeEventListener("click", handleOutsideClick);
-  }
+  run(() => {
+    if (showContextMenu) {
+      document.addEventListener("click", handleOutsideClick);
+    } else {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+  });
 </script>
 
 <div class="map-container">
@@ -405,7 +416,7 @@
       <button
         type="button"
         class="menu-item"
-        on:click|stopPropagation={(e) => handleMenuClick("mortar", e)}
+        onclick={stopPropagation((e) => handleMenuClick("mortar", e))}
         role="menuitem"
       >
         Set Mortar Position
@@ -413,7 +424,7 @@
       <button
         type="button"
         class="menu-item"
-        on:click|stopPropagation={(e) => handleMenuClick("target", e)}
+        onclick={stopPropagation((e) => handleMenuClick("target", e))}
         role="menuitem"
       >
         Set Target Position

@@ -36,7 +36,7 @@
 
   function findAppropriateRing(range, ballistics) {
     if (!ballistics || !ballistics.rings || ballistics.rings.length === 0) {
-      console.log("No ballistics data available for ring selection");
+      ;
       return null;
     }
 
@@ -44,23 +44,12 @@
     for (let i = 0; i < ballistics.rings.length; i++) {
       const ringData = ballistics.rings[i];
       if (!ringData || ringData.length < 2) {
-        console.log("Invalid ring data for ring:", i);
+        // console.log("Invalid ring data for ring:", i);
         continue;
       }
 
       const minRange = Math.min(...ringData.map((point) => point.range));
       const maxRange = Math.max(...ringData.map((point) => point.range));
-
-      console.log(
-        "Checking ring",
-        i,
-        "range:",
-        minRange,
-        "to",
-        maxRange,
-        "for target range:",
-        range,
-      );
 
       // Check if range is within this ring's limits
       if (range >= minRange && range <= maxRange) {
@@ -71,11 +60,11 @@
           range <= maxRange - rangeBuffer
         ) {
           rangeWarning = "";
-          console.log("Selected ring", i, "with comfortable range");
+          ;
           return i;
         } else {
           rangeWarning = `Warning: Range is close to the limits of Ring ${i}`;
-          console.log("Selected ring", i, "with range near limits");
+          ;
           return i;
         }
       }
@@ -89,11 +78,11 @@
       ballistics.rings[highestRing].length >= 2
     ) {
       rangeWarning = "Warning: Target is out of range for all available rings";
-      console.log("Using highest ring", highestRing, "as fallback");
+      ;
       return highestRing;
     }
 
-    console.log("No valid rings available");
+    ;
     return null;
   }
 
@@ -121,7 +110,7 @@
     const newRing = parseInt(event.target.value);
     if (!isNaN(newRing)) {
       selectedRing = newRing;
-      console.log("Ring manually changed to:", selectedRing);
+      // console.log("Ring manually changed to:", selectedRing);
       dispatch("ringChange", selectedRing);
     }
   }
@@ -140,7 +129,7 @@
       );
       if (appropriateRing !== null) {
         selectedRing = appropriateRing;
-        console.log("Auto-select enabled, selected ring:", appropriateRing);
+        //console.log("Auto-select enabled, selected ring:", appropriateRing);
         dispatch("ringChange", appropriateRing);
       }
     }
@@ -154,16 +143,6 @@
     const distancePixels = Math.sqrt(dx * dx + dy * dy);
     const distanceInPixels = distancePixels * 333.33333;
     const distance = distanceInPixels * MAP_SCALE_METERS_PER_PIXEL;
-
-    console.log("Distance calculation:", {
-      dx,
-      dy,
-      distancePixels,
-      distanceInPixels,
-      distance,
-      scale: MAP_SCALE_METERS_PER_PIXEL,
-      viewportToMeters: distancePixels * 333.33333 * MAP_SCALE_METERS_PER_PIXEL,
-    });
 
     return Math.round(distance * 71);
   }
@@ -179,22 +158,15 @@
 
   function interpolateElevation(range, ballistics) {
     if (!ballistics || !ballistics.rings || ballistics.rings.length === 0) {
-      console.log("No ballistics data available");
+      ;
       return null;
     }
 
     const ringData = ballistics.rings[selectedRing];
     if (!ringData || ringData.length < 2) {
-      console.log("No valid ring data for ring:", selectedRing);
+      // console.log("No valid ring data for ring:", selectedRing);
       return null;
     }
-
-    console.log(
-      "Interpolating elevation for range:",
-      range,
-      "using ring data:",
-      ringData,
-    );
 
     const sortedData = [...ringData].sort((a, b) => a.range - b.range);
     let nearestPoints = sortedData
@@ -210,7 +182,7 @@
     const lower = nearestPoints[0];
     const upper = nearestPoints[1];
 
-    console.log("Found nearest points:", { lower, upper, range });
+    // console.log("Found nearest points:", { lower, upper, range });
 
     // If range is outside the ring's limits, use the closest point
     if (range < lower.range) {
@@ -232,18 +204,6 @@
     const elevationMils =
       lower.elevationMils + ratio * (upper.elevationMils - lower.elevationMils);
     const elevationDeg = elevationMils / 17.7778;
-
-    console.log("Interpolation result:", {
-      ratio,
-      elevationMils,
-      elevationDeg,
-      lowerElevation: lower.elevationMils,
-      upperElevation: upper.elevationMils,
-      range,
-      lowerRange: lower.range,
-      upperRange: upper.range,
-      selectedRing,
-    });
 
     return {
       elevationMils: Math.round(elevationMils),
@@ -270,12 +230,6 @@
           );
           if (appropriateRing !== null) {
             selectedRing = appropriateRing;
-            console.log(
-              "Auto-selected ring:",
-              appropriateRing,
-              "for distance:",
-              distance,
-            );
             dispatch("ringChange", appropriateRing);
           }
         }
@@ -297,9 +251,7 @@
       const ringData = selectedAmmoType.ballistics.rings[selectedRing];
       if (ringData && ringData.length >= 2) {
         elevation = interpolateElevation(distance, selectedAmmoType.ballistics);
-        console.log("Elevation recalculated:", elevation);
       } else {
-        console.log("No valid ring data available for ring:", selectedRing);
         // Don't set elevation to null, keep the last valid elevation
       }
     }
@@ -307,17 +259,7 @@
 
   // Debug logging
   run(() => {
-    console.log("State update:", {
-      selectedRing,
-      distance,
-      azimuth,
-      elevation,
-      autoSelectRing,
-      hasMortarPosition: !!mortarPosition,
-      hasTargetPosition: !!targetPosition,
-      hasAmmoType: !!selectedAmmoType,
-      ringData: selectedAmmoType?.ballistics?.rings?.[selectedRing],
-    });
+    
   });
 </script>
 

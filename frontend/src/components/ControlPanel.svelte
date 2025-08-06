@@ -189,6 +189,7 @@
       return {
         elevationMils: Math.round(lower.elevationMils),
         elevationDeg: Math.round(lower.elevationMils / 17.7778),
+        timeToImpact: lower.timeToImpactSeconds,
         ring: selectedRing,
       };
     }
@@ -196,6 +197,7 @@
       return {
         elevationMils: Math.round(upper.elevationMils),
         elevationDeg: Math.round(upper.elevationMils / 17.7778),
+        timeToImpact: upper.timeToImpactSeconds,
         ring: selectedRing,
       };
     }
@@ -205,9 +207,22 @@
       lower.elevationMils + ratio * (upper.elevationMils - lower.elevationMils);
     const elevationDeg = elevationMils / 17.7778;
 
+    var timeToImpactCalc = 0.0;
+    if (upper.timeToImpactSeconds > lower.timeToImpactSeconds)
+    {
+      timeToImpactCalc = upper.timeToImpactSeconds - ratio * (upper.timeToImpactSeconds - lower.timeToImpactSeconds);
+    }
+    else
+    {
+      timeToImpactCalc = lower.timeToImpactSeconds - ratio * (lower.timeToImpactSeconds - upper.timeToImpactSeconds);
+    }
+
+    // console.log("TTI:", timeToImpactCalc, ratio, lower.timeToImpactSeconds, upper.timeToImpactSeconds);
+
     return {
       elevationMils: Math.round(elevationMils),
       elevationDeg: Math.round(elevationDeg),
+      timeToImpact: timeToImpactCalc,
       ring: selectedRing,
     };
   }
@@ -338,6 +353,10 @@
       <div class="calculation">
         <span class="label">Ring:</span>
         <span class="value">{elevation.ring}</span>
+      </div>
+      <div class="calculation">
+        <span class="label">Time To Impact:</span>
+        <span class="value">{elevation.timeToImpact.toFixed(2)}</span>
       </div>
     {/if}
     {#if rangeWarning}

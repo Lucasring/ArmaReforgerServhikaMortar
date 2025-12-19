@@ -4,6 +4,8 @@
   import { onMount } from "svelte";
   import OpenSeadragon from "openseadragon";
   import { MAP_SCALE_METERS_PER_PIXEL } from "../config/mortarConfig";
+  import MapControls from "./map/MapControls.svelte";
+  import MapLayers from "./map/MapLayers.svelte";
 
 
   
@@ -28,14 +30,12 @@
   let viewer;
   let overlay;
   let viewerElement = $state();
-  let contextMenu;
-  let contextMenuPosition = $state({ x: 0, y: 0 });
-  let showContextMenu = $state(false);
+  let controlsRef;
   let isDragging = false;
   let lastClickTime = 0;
   let viewMapSize = { x: 0, y: 0 };
 
-  onMount(() => {
+  onMount(async () => {
     ;
 
     // Ensure the viewer element exists
@@ -63,6 +63,17 @@
         springStiffness: 150,
       });
 
+      // Register the created viewer with the central mapStore so helpers
+      // (pointFromPixel, setMortarPositionFromPixel, etc.) operate on the
+      // same viewer instance.
+      try {
+        const { setViewer } = await import("../stores/mapStore.js");
+        setViewer(viewer, viewerElement);
+      } catch (e) {
+        // import may fail in some build contexts; log and continue
+        console.warn('Could not register viewer with mapStore:', e);
+      }
+
       ;
 
       // Hook to loaded map
@@ -76,25 +87,17 @@
         }
       });
 
-      // Create SVG overlay
-      overlay = document.createElement("div");
-      overlay.style.position = "absolute";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.pointerEvents = "none";
-      viewer.canvas.appendChild(overlay);
+      // NOTE: overlay creation/attachment is handled by the central mapStore
+      // when we call setViewer(viewer, viewerElement). Subscribe to the
+      // overlayStore so we always draw into the store-provided overlay.
 
       // Add double-click handler to the viewer element
       viewerElement.addEventListener("dblclick", (event) => {
-        ;
         const rect = viewerElement.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-
-        contextMenuPosition = { x, y };
-        showContextMenu = true;
+        // delegate to MapControls component
+        controlsRef && controlsRef.openMenu({ x, y });
       });
 
       // Update overlay when view changes
@@ -121,6 +124,37 @@
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
+  });
+
+  // Subscribe to central map store positions and overlay so menu actions
+  // (which update the store) cause this component to redraw overlays.
+  import { onDestroy } from 'svelte';
+  import { overlayStore, mortarPosition as mortarStore, targetPosition as targetStore } from '../stores/mapStore.js';
+
+  let _unsubOverlay = null;
+  let _unsubMortar = null;
+  let _unsubTarget = null;
+
+  // subscribe immediately (if mapStore already has values this will sync)
+  _unsubOverlay = overlayStore.subscribe((o) => {
+    overlay = o;
+    updateOverlay();
+  });
+
+  _unsubMortar = mortarStore.subscribe((p) => {
+    mortarPosition = p;
+    updateOverlay();
+  });
+
+  _unsubTarget = targetStore.subscribe((p) => {
+    targetPosition = p;
+    updateOverlay();
+  });
+
+  onDestroy(() => {
+    _unsubOverlay && _unsubOverlay();
+    _unsubMortar && _unsubMortar();
+    _unsubTarget && _unsubTarget();
   });
 
   function updateOverlay() {
@@ -340,36 +374,7 @@
     svg.appendChild(line);
   }
 
-  function handleMenuClick(type, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    // console.log("Menu item clicked:", type);
-
-    // Convert pixel coordinates to OpenSeadragon point format
-    const pixel = new OpenSeadragon.Point(
-      contextMenuPosition.x,
-      contextMenuPosition.y,
-    );
-    const viewportPoint = viewer.viewport.pointFromPixel(pixel);
-
-    if (type === "mortar") {
-      // console.log("Setting mortar position:", viewportPoint);
-      mortarPosition = { x: viewportPoint.x, y: viewportPoint.y };
-    } else if (type === "target") {
-      // console.log("Setting target position:", viewportPoint);
-      targetPosition = { x: viewportPoint.x, y: viewportPoint.y };
-    }
-
-    updateOverlay();
-    showContextMenu = false;
-  }
-
-  // Close menu when clicking outside
-  function handleOutsideClick(event) {
-    if (showContextMenu && !event.target.closest(".context-menu")) {
-      showContextMenu = false;
-    }
-  }
+  // Context menu behavior moved into MapControls component
 
   // Update overlay when mortar or ammo type changes
   run(() => {
@@ -395,45 +400,16 @@
     }
   });
 
-  // Add and remove document click listener
-  run(() => {
-    if (showContextMenu) {
-      document.addEventListener("click", handleOutsideClick);
-    } else {
-      document.removeEventListener("click", handleOutsideClick);
-    }
-  });
+  // MapControls handles its own outside-click behavior
 </script>
 
-<div class="map-container">
-  <div id="map-viewer" bind:this={viewerElement}></div>
-  {#if showContextMenu}
-    <div
-      class="context-menu"
-      style="left: {contextMenuPosition.x}px; top: {contextMenuPosition.y}px;"
-      role="menu"
-    >
-      <button
-        type="button"
-        class="menu-item"
-        onclick={stopPropagation((e) => handleMenuClick("mortar", e))}
-        role="menuitem"
-      >
-        Set Mortar Position
-      </button>
-      <button
-        type="button"
-        class="menu-item"
-        onclick={stopPropagation((e) => handleMenuClick("target", e))}
-        role="menuitem"
-      >
-        Set Target Position
-      </button>
-    </div>
-  {/if}
-</div>
+  <div class="map-container">
+    <div id="map-viewer" bind:this={viewerElement}></div>
+    <MapControls bind:this={controlsRef} />
+    <MapLayers {selectedMortarType} {selectedAmmoType} {selectedRing} />
+  </div>
 
-<style>
+  <style>
   .map-container {
     width: 100%;
     height: 100%;

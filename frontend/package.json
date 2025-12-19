@@ -7,14 +7,24 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
+		"test": "vitest",
 		"prepare": "svelte-kit sync || echo ''"
 	},
 	"devDependencies": {
+		"vitest": "^1.0.0",
+		"@testing-library/svelte": "^5.0.0",
+		"@testing-library/jest-dom": "^6.0.0",
+		"jsdom": "^22.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.21.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
 		"svelte": "^5.33.10",
 		"vite": "^6.3.5"
+	},
+	"vitest": {
+		"environment": "jsdom",
+		"globals": true,
+		"setupFiles": ["src/setupTests.js"]
 	},
 	"dependencies": {
 		"openseadragon": "^5.0.1"

@@ -59,7 +59,7 @@
           clickToZoom: false,
         },
         debugMode: true,
-        maxZoomLevel: 10,
+        maxZoomLevel: 50,
         springStiffness: 150,
       });
 

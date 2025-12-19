@@ -213,9 +213,9 @@
     const containerSize = viewer.viewport.getContainerSize();
     const RATIO_VIEWPORT_TO_CONTAINER = (containerSize.x / viewMapSize.x);
 
-    /// Calculate ranges in viewport screen space distance
-    const minRangePixels = minRangeMeters * MAP_SCALE_METERS_PER_PIXEL;
-    const maxRangePixels = maxRangeMeters * MAP_SCALE_METERS_PER_PIXEL;
+    /// Calculate ranges in viewport screen space distance / 1.333333 is adjustment factor from map
+    const minRangePixels = minRangeMeters * MAP_SCALE_METERS_PER_PIXEL * 1.333333;
+    const maxRangePixels = maxRangeMeters * MAP_SCALE_METERS_PER_PIXEL * 1.333333;
 
     /// Calculate the min/max ranges as a ratio of container space width
     const minRange = minRangePixels * RATIO_VIEWPORT_TO_CONTAINER / containerSize.x;

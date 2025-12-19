@@ -141,7 +141,7 @@
     const dx = targetPos.x - mortarPos.x;
     const dy = targetPos.y - mortarPos.y;
     const distancePixels = Math.sqrt(dx * dx + dy * dy);
-    const distanceInPixels = distancePixels * 333.33333;
+    const distanceInPixels = distancePixels * 163.03;
     const distance = distanceInPixels * MAP_SCALE_METERS_PER_PIXEL;
 
     return Math.round(distance * 71);

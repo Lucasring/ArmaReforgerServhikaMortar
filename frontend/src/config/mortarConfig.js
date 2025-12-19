@@ -1,4 +1,4 @@
-export const MAP_SCALE_METERS_PER_PIXEL = (0.43588888888) / 1.007;
+export const MAP_SCALE_METERS_PER_PIXEL = (0.86430423509 ) / 1.000;
 
 export const mortarTypes = [
   {

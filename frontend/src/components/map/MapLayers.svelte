@@ -315,8 +315,8 @@
         const imageY = (typeof viewMapSize.y === 'number') ? ((1 - world.y) * viewMapSize.y) : world.y;
         const metersX = imageX * MAP_SCALE_METERS_PER_PIXEL;
         const metersY = imageY * MAP_SCALE_METERS_PER_PIXEL;
-        const gridX = Math.floor(metersX / 100);
-        const gridY = Math.floor(metersY / 100);
+        const gridX = Math.floor(metersX / 10);
+        const gridY = Math.floor(metersY / 10);
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         // place label slightly offset from cursor (use screen coords)
         const labelX = Math.min(screenX + 10, (overlay.clientWidth || width) - 10);

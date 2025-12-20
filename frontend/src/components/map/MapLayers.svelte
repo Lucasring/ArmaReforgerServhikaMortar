@@ -327,7 +327,7 @@
         label.setAttribute('font-size', '14px');
         label.setAttribute('pointer-events', 'none');
         // Format as `{COL} {ROW}` — show column then row (Y X)
-        label.textContent = `${gridY} ${gridX}`;
+        label.textContent = `0${gridX} 0${gridY}`;
         svg.appendChild(label);
       }
     }

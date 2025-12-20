@@ -279,7 +279,7 @@
 </script>
 
 <div class="control-panel">
-  <h2>Mortar Helper</h2>
+  <h2>Mortar Helper V1.0.0</h2>
 
   <div class="selectors">
     <div class="selector">

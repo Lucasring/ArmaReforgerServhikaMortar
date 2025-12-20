@@ -92,13 +92,32 @@
       // overlayStore so we always draw into the store-provided overlay.
 
       // Add double-click handler to the viewer element
-      viewerElement.addEventListener("dblclick", (event) => {
-        const rect = viewerElement.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        // delegate to MapControls component
-        controlsRef && controlsRef.openMenu({ x, y });
-      });
+          viewerElement.addEventListener("dblclick", (event) => {
+            const rect = viewerElement.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            // delegate to MapControls component
+            controlsRef && controlsRef.openMenu({ x, y });
+          });
+
+          // Mouse move for cursor overlay
+          const _onMouseMove = (event) => {
+            const rect = viewerElement.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            try {
+              setCursorFromPixel({ x, y });
+            } catch (e) {
+              console.warn('setCursorFromPixel failed', e);
+            }
+          };
+
+          const _onMouseLeave = () => {
+            try { setCursorFromPixel(null); } catch (e) { }
+          };
+
+          viewerElement.addEventListener('mousemove', _onMouseMove);
+          viewerElement.addEventListener('mouseleave', _onMouseLeave);
 
       // Update overlay when view changes
       viewer.addHandler("animation", updateOverlay);
@@ -118,18 +137,17 @@
       console.error("Error initializing OpenSeadragon:", error);
     }
 
-    // Add document click listener for closing menu
-    document.addEventListener("click", handleOutsideClick);
-
+    // Clean up mouse listeners when component unmounts
     return () => {
-      document.removeEventListener("click", handleOutsideClick);
+      viewerElement.removeEventListener('mousemove', _onMouseMove);
+      viewerElement.removeEventListener('mouseleave', _onMouseLeave);
     };
   });
 
   // Subscribe to central map store positions and overlay so menu actions
   // (which update the store) cause this component to redraw overlays.
   import { onDestroy } from 'svelte';
-  import { overlayStore, mortarPosition as mortarStore, targetPosition as targetStore } from '../stores/mapStore.js';
+  import { overlayStore, mortarPosition as mortarStore, targetPosition as targetStore, setCursorFromPixel } from '../stores/mapStore.js';
 
   let _unsubOverlay = null;
   let _unsubMortar = null;

@@ -8,6 +8,8 @@ export const overlayStore = writable(null);
 // Positions are now stored centrally so other components can read/write them
 export const mortarPosition = writable(null);
 export const targetPosition = writable(null);
+export const cursorPixel = writable(null); // {x,y} in container pixels
+export const cursorWorld = writable(null); // world coordinates (OpenSeadragon Point-like)
 
 let updateListeners = new Set();
 let viewerInstance = null;
@@ -182,6 +184,27 @@ export function setTargetPositionFromPixel(pixel) {
   const vp = pointFromPixel(pixel);
   if (!vp) return;
   setTargetPosition({ x: vp.x, y: vp.y });
+}
+
+export function setCursorFromPixel(pixel) {
+  if (!pixel) {
+    cursorPixel.set(null);
+    cursorWorld.set(null);
+    notifyUpdates();
+    return;
+  }
+  cursorPixel.set(pixel);
+  try {
+    const wp = pointFromPixel(pixel);
+    // Temporary debug logging to help trace cursor updates at runtime
+    if (typeof console !== 'undefined' && console.debug) {
+      console.debug('[mapStore] setCursorFromPixel', { pixel, world: wp });
+    }
+    if (wp) cursorWorld.set({ x: wp.x, y: wp.y });
+  } catch (e) {
+    console.error('setCursorFromPixel conversion error', e);
+  }
+  notifyUpdates();
 }
 
 export function onUpdate(fn) {

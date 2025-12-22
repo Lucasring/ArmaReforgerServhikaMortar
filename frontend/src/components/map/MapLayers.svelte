@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
   import { onDestroy } from 'svelte';
-  import OpenSeadragon from 'openseadragon';
+  import * as OpenSeadragon from 'openseadragon';
   import { MAP_SCALE_METERS_PER_PIXEL } from '../../config/mortarConfig';
   import { viewerStore, overlayStore, mortarPosition, targetPosition, cursorPixel, cursorWorld, pointFromPixel } from '../../stores/mapStore.js';
+  import * as Utils from './MapUtils'
 
   export let selectedMortarType;
   export let selectedAmmoType;
@@ -13,34 +14,39 @@
     try { renderOverlay(); } catch (e) { /* ignore */ }
   }
 
-  let viewer = null;
-  let overlay = null;
-  let viewMapSize = { x: 0 };
+  let viewer : any = null;
+  let overlay : any = null;
+  let viewMapSize : any = { x: 0 };
 
   const unsubViewer = viewerStore.subscribe((v) => {
     viewer = v;
     if (viewer) renderOverlay();
   });
+
   const unsubOverlay = overlayStore.subscribe((o) => {
     overlay = o;
     if (overlay) renderOverlay();
   });
+
   let mortarPos = null;
   let targetPos = null;
   const unsubMortar = mortarPosition.subscribe((p) => {
     mortarPos = p;
     renderOverlay();
   });
+
   const unsubTarget = targetPosition.subscribe((p) => {
     targetPos = p;
     renderOverlay();
   });
+
   let cursorPixelValue = null;
   let cursorWorldValue = null;
   const unsubCursorPixel = cursorPixel.subscribe((c) => {
     cursorPixelValue = c;
     renderOverlay();
   });
+
   const unsubCursorWorld = cursorWorld.subscribe((c) => {
     cursorWorldValue = c;
     renderOverlay();
@@ -192,8 +198,8 @@
 
   function drawLine(svg) {
     if (!viewer || !mortarPos || !targetPos) return;
-    const mortarPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(mortarPos.x, mortarPos.y));
-    const targetPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(targetPos.x, targetPos.y));
+    const mortarPoint = viewer.viewport.pixelFromPoint({x : mortarPos.x, y : mortarPos.y});
+    const targetPoint = viewer.viewport.pixelFromPoint({x : targetPos.x, y : targetPos.y});
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', mortarPoint.x);
     line.setAttribute('y1', mortarPoint.y);
@@ -204,26 +210,48 @@
     svg.appendChild(line);
   }
 
+  // function drawLine(svg, p1 : Utils.Point, p2 : Utils.Point) {
+  //   if (!viewer || !mortarPos || !targetPos) return;
+  //   const mortarPoint = viewer.viewport.pixelFromPoint({x : mortarPos.x, y : mortarPos.y});
+  //   const targetPoint = viewer.viewport.pixelFromPoint({x : targetPos.x, y : targetPos.y});
+  //   const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  //   line.setAttribute('x1', mortarPoint.x);
+  //   line.setAttribute('y1', mortarPoint.y);
+  //   line.setAttribute('x2', targetPoint.x);
+  //   line.setAttribute('y2', targetPoint.y);
+  //   line.setAttribute('stroke', 'rgba(255, 0, 0, 0.5)');
+  //   line.setAttribute('stroke-width', '2');
+  //   svg.appendChild(line);
+  // }
+
   function renderOverlay() {
+
     if (!overlay || !viewer) return;
+
     const item = viewer.world && typeof viewer.world.getItemAt === 'function' ? viewer.world.getItemAt(0) : null;
     if (item && typeof item.getContentSize === 'function') {
       viewMapSize = item.getContentSize();
     }
+
     overlay.innerHTML = '';
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     overlay.appendChild(svg);
+
+    // Draw the mortar position if defined
     if (mortarPos) {
       drawMortar(svg);
       drawRangeRings(svg);
     }
+
+    // Draw the target position if defined
     if (targetPos) {
       drawTarget(svg);
       drawDispersionRing(svg);
       drawLine(svg);
     }
+
     // draw cursor crosshair and grid label if present
     if (typeof cursorPixelValue !== 'undefined' && cursorPixelValue && svg) {
       const cxRaw = Number(cursorPixelValue.x);
@@ -260,6 +288,7 @@
         }
       }
 
+      // Draw the Horizontal line
       const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       hLine.setAttribute('x1', '0');
       hLine.setAttribute('y1', String(screenY));
@@ -270,6 +299,7 @@
       hLine.setAttribute('stroke-opacity', '0.9');
       svg.appendChild(hLine);
 
+      // Draw the Vertical line
       const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       vLine.setAttribute('x1', String(screenX));
       vLine.setAttribute('y1', '0');
@@ -280,32 +310,14 @@
       vLine.setAttribute('stroke-opacity', '0.9');
       svg.appendChild(vLine);
 
-        // Debug: log cursor values and draw a small dot to verify cursor rendering
-        try {
-          if (typeof console !== 'undefined' && console.debug) {
-            console.debug('[MapLayers] cursor', { cxRaw, cyRaw, screenX, screenY, cursorPixelValue, cursorWorldValue });
-          }
-          const cursorDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          cursorDot.setAttribute('cx', String(screenX));
-          cursorDot.setAttribute('cy', String(screenY));
-          cursorDot.setAttribute('r', '3');
-          cursorDot.setAttribute('fill', 'orange');
-          cursorDot.setAttribute('pointer-events', 'none');
-          svg.appendChild(cursorDot);
-        } catch (e) {
-          // ignore debug errors
-        }
-
-      // world already computed above; if still missing, try an extra viewer fallback
-      if (!world && viewer && typeof viewer.viewport?.pointFromPixel === 'function') {
-        try {
-          const pt = new OpenSeadragon.Point(Number(cxRaw), Number(cyRaw));
-          const vp = viewer.viewport.pointFromPixel(pt);
-          if (vp) world = { x: vp.x, y: vp.y };
-        } catch (e) {
-          // ignore
-        }
-      }
+      // Debug: log cursor values and draw a small dot to verify cursor rendering
+      const cursorDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      cursorDot.setAttribute('cx', String(screenX));
+      cursorDot.setAttribute('cy', String(screenY));
+      cursorDot.setAttribute('r', '3');
+      cursorDot.setAttribute('fill', 'orange');
+      cursorDot.setAttribute('pointer-events', 'none');
+      svg.appendChild(cursorDot);
 
       if (world) {
         // `world` contains viewer/world coordinates (not raw image pixels).

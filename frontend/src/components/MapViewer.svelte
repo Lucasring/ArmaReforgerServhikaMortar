@@ -7,8 +7,8 @@
   import MapControls from "./map/MapControls.svelte";
   import MapLayers from "./map/MapLayers.svelte";
 
+  let MapLayerInstance;
 
-  
   /**
    * @typedef {Object} Props
    * @property {any} selectedMortarType
@@ -92,32 +92,33 @@
       // overlayStore so we always draw into the store-provided overlay.
 
       // Add double-click handler to the viewer element
-          viewerElement.addEventListener("dblclick", (event) => {
-            const rect = viewerElement.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            // delegate to MapControls component
-            controlsRef && controlsRef.openMenu({ x, y });
-          });
+      viewerElement.addEventListener("dblclick", (event) => {
+        const rect = viewerElement.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        // delegate to MapControls component
+        controlsRef && controlsRef.openMenu({ x, y });
+      });
 
-          // Mouse move for cursor overlay
-          const _onMouseMove = (event) => {
-            const rect = viewerElement.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            try {
-              setCursorFromPixel({ x, y });
-            } catch (e) {
-              console.warn('setCursorFromPixel failed', e);
-            }
-          };
+      // Mouse move for cursor overlay
+      const _onMouseMove = (event) => {
+        const rect = viewerElement.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        try {
+          setCursorFromPixel({ x, y });
+        } catch (e) {
+          console.warn('setCursorFromPixel failed', e);
+        }
+      };
 
-          const _onMouseLeave = () => {
-            try { setCursorFromPixel(null); } catch (e) { }
-          };
+      const _onMouseLeave = () => {
+        try { setCursorFromPixel(null); } catch (e) { }
+      };
 
-          viewerElement.addEventListener('mousemove', _onMouseMove);
-          viewerElement.addEventListener('mouseleave', _onMouseLeave);
+      // Attach listeners for mouse
+      viewerElement.addEventListener('mousemove', _onMouseMove);
+      viewerElement.addEventListener('mouseleave', _onMouseLeave);
 
       // Update overlay when view changes
       viewer.addHandler("animation", updateOverlay);
@@ -424,7 +425,7 @@
   <div class="map-container">
     <div id="map-viewer" bind:this={viewerElement}></div>
     <MapControls bind:this={controlsRef} />
-    <MapLayers {selectedMortarType} {selectedAmmoType} {selectedRing} />
+    <MapLayers bind:this={MapLayerInstance} {selectedMortarType} {selectedAmmoType} {selectedRing} />
   </div>
 
   <style>

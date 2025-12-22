@@ -2,358 +2,255 @@
   import { onDestroy } from 'svelte';
   import * as OpenSeadragon from 'openseadragon';
   import { MAP_SCALE_METERS_PER_PIXEL } from '../../config/mortarConfig';
-  import { viewerStore, overlayStore, mortarPosition, targetPosition, cursorPixel, cursorWorld, pointFromPixel } from '../../stores/mapStore.js';
-  import * as Utils from './MapUtils'
+  import { 
+    viewerStore, 
+    overlayStore, 
+    mortarPosition, 
+    targetPosition, 
+    cursorPixel 
+  } from '../../stores/mapStore.js';
 
-  export let selectedMortarType;
-  export let selectedAmmoType;
-  export let selectedRing = 0;
+  // --- Types & Props ---
 
-  // Re-render overlay when parent props change
-  $: if (typeof selectedMortarType !== 'undefined' || typeof selectedAmmoType !== 'undefined' || typeof selectedRing !== 'undefined') {
-    try { renderOverlay(); } catch (e) { /* ignore */ }
+  interface MapLayerProps {
+    selectedMortarType: any;
+    selectedAmmoType: any;
+    selectedRing: number;
   }
 
-  let viewer : any = null;
-  let overlay : any = null;
-  let viewMapSize : any = { x: 0 };
+  interface Point { x: number; y: number; }
 
-  const unsubViewer = viewerStore.subscribe((v) => {
-    viewer = v;
-    if (viewer) renderOverlay();
-  });
+  let { selectedMortarType, selectedAmmoType, selectedRing = 0 }: MapLayerProps = $props();
 
-  const unsubOverlay = overlayStore.subscribe((o) => {
-    overlay = o;
-    if (overlay) renderOverlay();
-  });
+  let viewer: any = null;
+  let overlay: HTMLElement | null = null;
+  let viewMapSize = { x: 0, y: 0 };
+  
+  let mPos: any = null;
+  let tPos: any = null;
+  let cPixel: any = null;
 
-  let mortarPos = null;
-  let targetPos = null;
-  const unsubMortar = mortarPosition.subscribe((p) => {
-    mortarPos = p;
-    renderOverlay();
-  });
+  // --- SVG PRIMITIVES (The Library) ---
 
-  const unsubTarget = targetPosition.subscribe((p) => {
-    targetPos = p;
-    renderOverlay();
-  });
-
-  let cursorPixelValue = null;
-  let cursorWorldValue = null;
-  const unsubCursorPixel = cursorPixel.subscribe((c) => {
-    cursorPixelValue = c;
-    renderOverlay();
-  });
-
-  const unsubCursorWorld = cursorWorld.subscribe((c) => {
-    cursorWorldValue = c;
-    renderOverlay();
-  });
-
-  function createRingPoints(radius, center_x, center_y) {
-    if (!viewer) return [];
-    const points = [];
-    const segments = 32;
-    for (let i = 0; i < segments; i++) {
-      try {
-        const angle = (i / segments) * Math.PI * 2;
-        const point = new OpenSeadragon.Point(center_x + Math.cos(angle) * radius, center_y + Math.sin(angle) * radius);
-        const screenPoint = viewer.viewport && typeof viewer.viewport.pixelFromPoint === 'function'
-          ? viewer.viewport.pixelFromPoint(point)
-          : null;
-        if (screenPoint && Number.isFinite(screenPoint.x) && Number.isFinite(screenPoint.y)) {
-          points.push(screenPoint);
-        }
-      } catch (e) {
-        // ignore individual point errors and continue
-      }
-    }
-    return points;
+  function createSVGElement(tag: string) {
+    return document.createElementNS('http://www.w3.org/2000/svg', tag);
   }
 
-  function addRangeLabel(svg, rangeMeters, radius, position) {
-    if (!viewer) return;
-    try {
-      const point = new OpenSeadragon.Point(position.x, position.y - radius);
-      const screenPoint = viewer.viewport && typeof viewer.viewport.pixelFromPoint === 'function'
-        ? viewer.viewport.pixelFromPoint(point)
-        : null;
-      if (!screenPoint || !Number.isFinite(screenPoint.x) || !Number.isFinite(screenPoint.y)) return;
-      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      label.setAttribute('x', screenPoint.x);
-      label.setAttribute('y', screenPoint.y - 5);
-      label.setAttribute('fill', 'black');
-      label.setAttribute('font-size', '12px');
-      label.setAttribute('text-anchor', 'middle');
-      label.textContent = `${Math.round(rangeMeters)}m`;
-      svg.appendChild(label);
-    } catch (e) {
-      console.debug('addRangeLabel error', e);
-    }
+  /**
+   * Applies a dictionary of attributes to an SVG element
+   */
+  function applyAttributes(el: SVGElement, attr: Record<string, any>) {
+    Object.entries(attr).forEach(([key, val]) => el.setAttribute(key, String(val)));
   }
 
-  function drawMortar(svg) {
-    if (!viewer || !mortarPos) return;
-    try {
-      if (typeof console !== 'undefined' && console.debug) console.debug('[MapLayers] drawMortar', { mortarPos });
-    } catch (e) {}
-    const mortarPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(mortarPos.x, mortarPos.y));
-    const mortarCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    mortarCircle.setAttribute('cx', mortarPoint.x);
-    mortarCircle.setAttribute('cy', mortarPoint.y);
-    mortarCircle.setAttribute('r', '5');
-    mortarCircle.setAttribute('fill', 'blue');
-    mortarCircle.setAttribute('stroke', 'white');
-    mortarCircle.setAttribute('stroke-width', '2');
-    svg.appendChild(mortarCircle);
+  /**
+   * Draws a circle at a World Coordinate
+   */
+  function drawCircle(svg: SVGElement, center: Point, radius: number, attr: any) {
+    const p = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(center.x, center.y));
+    const el = createSVGElement('circle');
+    el.setAttribute('cx', String(p.x));
+    el.setAttribute('cy', String(p.y));
+    el.setAttribute('r', String(radius));
+    applyAttributes(el, attr);
+    svg.appendChild(el);
   }
 
-  function drawTarget(svg) {
-    if (!viewer || !targetPos) return;
-    try {
-      if (typeof console !== 'undefined' && console.debug) console.debug('[MapLayers] drawTarget', { targetPos });
-    } catch (e) {}
-    const targetPoint = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(targetPos.x, targetPos.y));
-    const targetCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    targetCircle.setAttribute('cx', targetPoint.x);
-    targetCircle.setAttribute('cy', targetPoint.y);
-    targetCircle.setAttribute('r', '5');
-    targetCircle.setAttribute('fill', 'red');
-    targetCircle.setAttribute('stroke', 'white');
-    targetCircle.setAttribute('stroke-width', '2');
-    svg.appendChild(targetCircle);
+  /**
+   * Draws a line. Can accept World Coords or Screen Coords (pixels)
+   */
+  function drawLine(svg: SVGElement, p1: Point, p2: Point, attr: any, isScreenSpace = false) {
+    const s1 = isScreenSpace ? p1 : viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(p1.x, p1.y));
+    const s2 = isScreenSpace ? p2 : viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(p2.x, p2.y));
+    
+    const el = createSVGElement('line');
+    el.setAttribute('x1', String(s1.x)); el.setAttribute('y1', String(s1.y));
+    el.setAttribute('x2', String(s2.x)); el.setAttribute('y2', String(s2.y));
+    applyAttributes(el, attr);
+    svg.appendChild(el);
   }
 
-  function drawRangeRings(svg) {
-    try {
-      if (!viewer || !mortarPos) return;
-      if (typeof console !== 'undefined' && console.debug) console.debug('[MapLayers] drawRangeRings start', { selectedAmmoTypePresent: !!selectedAmmoType, selectedRing, mortarPos });
-      if (!selectedAmmoType?.ballistics?.rings?.[selectedRing]) return;
-      const ringData = selectedAmmoType.ballistics.rings[selectedRing];
-      if (!ringData || ringData.length === 0) return;
-
-      const minRangeMeters = Math.min(...ringData.map((p) => p.range));
-      const maxRangeMeters = Math.max(...ringData.map((p) => p.range));
-
-      const containerSize = viewer.viewport.getContainerSize();
-      if (!viewMapSize || !viewMapSize.x || containerSize.x === 0) return;
-      const RATIO_VIEWPORT_TO_CONTAINER = (containerSize.x / viewMapSize.x);
-
-      const minRangePixels = minRangeMeters * MAP_SCALE_METERS_PER_PIXEL * 1.333333;
-      const maxRangePixels = maxRangeMeters * MAP_SCALE_METERS_PER_PIXEL * 1.333333;
-
-      const minRange = minRangePixels * RATIO_VIEWPORT_TO_CONTAINER / containerSize.x;
-      const maxRange = maxRangePixels * RATIO_VIEWPORT_TO_CONTAINER / containerSize.x;
-
-      const minRingPoints = createRingPoints(minRange, mortarPos.x, mortarPos.y);
-      try { if (typeof console !== 'undefined' && console.debug) console.debug('[MapLayers] minRingPoints', { minRange, minRingPointsLength: minRingPoints.length }); } catch (e) {}
-      if (minRingPoints.length > 0) {
-        const minRingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        minRingPath.setAttribute('d', `M ${minRingPoints.map((p) => `${p.x},${p.y}`).join(' L ')} Z`);
-        minRingPath.setAttribute('fill', 'none');
-        minRingPath.setAttribute('stroke', 'rgba(0, 0, 255, 0.5)');
-        minRingPath.setAttribute('stroke-width', '3');
-        svg.appendChild(minRingPath);
-      }
-
-      const maxRingPoints = createRingPoints(maxRange, mortarPos.x, mortarPos.y);
-      try { if (typeof console !== 'undefined' && console.debug) console.debug('[MapLayers] maxRingPoints', { maxRange, maxRingPointsLength: maxRingPoints.length }); } catch (e) {}
-      if (maxRingPoints.length > 0) {
-        const maxRingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        maxRingPath.setAttribute('d', `M ${maxRingPoints.map((p) => `${p.x},${p.y}`).join(' L ')} Z`);
-        maxRingPath.setAttribute('fill', 'none');
-        maxRingPath.setAttribute('stroke', 'rgba(0, 0, 255, 0.5)');
-        maxRingPath.setAttribute('stroke-width', '3');
-        svg.appendChild(maxRingPath);
-      }
-
-      addRangeLabel(svg, minRangeMeters, minRange, mortarPos);
-      addRangeLabel(svg, maxRangeMeters, maxRange, mortarPos);
-    } catch (e) {
-      console.debug('drawRangeRings error', e);
-    }
-  }
-
-  function drawDispersionRing(svg) {
-    if (!viewer || !targetPos) return;
-    if (!selectedAmmoType?.ballistics?.dispersions?.[selectedRing]) return;
-    const dispersionData = selectedAmmoType.ballistics.dispersions[selectedRing];
+  /**
+   * Draws a range ring based on meters
+   */
+  function drawRing(svg: SVGElement, center: Point, radiusInMeters: number, attr: any) {
+    if (viewMapSize.x <= 0) return;
     const containerSize = viewer.viewport.getContainerSize();
-    const RATIO_VIEWPORT_TO_CONTAINER = (containerSize.x / viewMapSize.x);
-    const dispersionRangePixels = dispersionData * MAP_SCALE_METERS_PER_PIXEL;
-    const dispersionRange = dispersionRangePixels * RATIO_VIEWPORT_TO_CONTAINER / containerSize.x;
-
-    const dispersionRingPoints = createRingPoints(dispersionRange, targetPos.x, targetPos.y);
-    const dispersionRingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    dispersionRingPath.setAttribute('d', `M ${dispersionRingPoints.map((p) => `${p.x},${p.y}`).join(' L ')} Z`);
-    dispersionRingPath.setAttribute('fill', 'rgba(255, 0, 0, 0.25)');
-    dispersionRingPath.setAttribute('stroke', 'rgba(255, 0, 0, 0.5)');
-    dispersionRingPath.setAttribute('stroke-width', '3');
-    svg.appendChild(dispersionRingPath);
-
-    addRangeLabel(svg, dispersionData, dispersionRange, targetPos);
+    const ratio = containerSize.x / viewMapSize.x;
+    
+    // Scale meters to pixels based on project config
+    const rPixels = radiusInMeters * MAP_SCALE_METERS_PER_PIXEL * 1.333;
+    const finalRadius = (rPixels * ratio) / containerSize.x;
+    
+    const points = [];
+    const segments = 64;
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      const pt = new OpenSeadragon.Point(
+        center.x + Math.cos(angle) * finalRadius, 
+        center.y + Math.sin(angle) * finalRadius
+      );
+      const sp = viewer.viewport.pixelFromPoint(pt);
+      if (sp) points.push(`${sp.x},${sp.y}`);
+    }
+    
+    const el = createSVGElement('path');
+    el.setAttribute('d', `M ${points.join(' L ')} Z`);
+    applyAttributes(el, attr);
+    svg.appendChild(el);
   }
 
-  function drawLine(svg) {
-    if (!viewer || !mortarPos || !targetPos) return;
-    const mortarPoint = viewer.viewport.pixelFromPoint({x : mortarPos.x, y : mortarPos.y});
-    const targetPoint = viewer.viewport.pixelFromPoint({x : targetPos.x, y : targetPos.y});
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', mortarPoint.x);
-    line.setAttribute('y1', mortarPoint.y);
-    line.setAttribute('x2', targetPoint.x);
-    line.setAttribute('y2', targetPoint.y);
-    line.setAttribute('stroke', 'rgba(255, 0, 0, 0.5)');
-    line.setAttribute('stroke-width', '2');
-    svg.appendChild(line);
+  /**
+   * Draws text at a World Coordinate
+   */
+  function drawText(svg: SVGElement, text: string, pos: Point, attr: any) {
+    const p = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(pos.x, pos.y));
+    const el = createSVGElement('text');
+    el.setAttribute('x', String(p.x));
+    el.setAttribute('y', String(p.y));
+    el.textContent = text;
+    applyAttributes(el, attr);
+    svg.appendChild(el);
   }
 
-  // function drawLine(svg, p1 : Utils.Point, p2 : Utils.Point) {
-  //   if (!viewer || !mortarPos || !targetPos) return;
-  //   const mortarPoint = viewer.viewport.pixelFromPoint({x : mortarPos.x, y : mortarPos.y});
-  //   const targetPoint = viewer.viewport.pixelFromPoint({x : targetPos.x, y : targetPos.y});
-  //   const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  //   line.setAttribute('x1', mortarPoint.x);
-  //   line.setAttribute('y1', mortarPoint.y);
-  //   line.setAttribute('x2', targetPoint.x);
-  //   line.setAttribute('y2', targetPoint.y);
-  //   line.setAttribute('stroke', 'rgba(255, 0, 0, 0.5)');
-  //   line.setAttribute('stroke-width', '2');
-  //   svg.appendChild(line);
-  // }
+  // --- LAYER RENDERERS ---
+
+  function drawMortarLayer(svg: SVGElement) {
+    if (!mPos) return;
+
+    // Mortar Location Icon
+    drawCircle(svg, mPos, 6, { 
+        fill: '#3b82f6', 
+        stroke: 'black', 
+        'stroke-width': 2 
+    });
+    
+    // Range Ring
+    const ringData = selectedAmmoType?.ballistics?.rings?.[selectedRing]?.at(-1);
+    if (ringData) {
+      drawRing(svg, mPos, ringData.range, { 
+        fill: 'none', 
+        stroke: 'rgba(59, 130, 246, 0.5)', 
+        'stroke-width': 3 
+      });
+
+      // Range Label
+      drawText(svg, `${ringData.range}m`, mPos, {
+        fill: '#3b82f6', 
+        'font-size': '14px', 
+        'font-weight': 'bold',
+        'text-anchor': 'middle', 
+        dy: -15 
+      });
+    }
+  }
+
+  function drawTargetLayer(svg: SVGElement) {
+    if (!tPos) return;
+
+    // Target Location Icon
+    drawCircle(svg, tPos, 3, { 
+        fill: '#ef4444', 
+        stroke: 'black', 
+        'stroke-width': 2 
+    });
+
+    // Distance Line
+    if (mPos) {
+      drawLine(svg, mPos, tPos, { 
+        stroke: 'rgba(239, 68, 68, 0.6)', 
+        'stroke-width': 2, 
+        'stroke-dasharray': '5,5' 
+      });
+    }
+  }
+
+  function drawCrosshairLayer(svg: SVGElement) {
+    if (!cPixel || !overlay) return;
+    const colorAttr = { stroke: 'orange', 'stroke-opacity': 0.5, 'stroke-width': 1 };
+    
+    // Horizontal
+    drawLine(svg, {x: 0, y: cPixel.y}, {x: overlay.clientWidth, y: cPixel.y}, colorAttr, true);
+    // Vertical
+    drawLine(svg, {x: cPixel.x, y: 0}, {x: cPixel.x, y: overlay.clientHeight}, colorAttr, true);
+  }
+
+  // --- MAIN RENDER LOGIC ---
 
   function renderOverlay() {
-
     if (!overlay || !viewer) return;
 
-    const item = viewer.world && typeof viewer.world.getItemAt === 'function' ? viewer.world.getItemAt(0) : null;
-    if (item && typeof item.getContentSize === 'function') {
-      viewMapSize = item.getContentSize();
-    }
+    const item = viewer.world.getItemAt(0);
+    if (item) viewMapSize = item.getContentSize();
 
     overlay.innerHTML = '';
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const svg = createSVGElement('svg') as unknown as SVGElement;
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     overlay.appendChild(svg);
 
-    // Draw the mortar position if defined
-    if (mortarPos) {
-      drawMortar(svg);
-      drawRangeRings(svg);
-    }
-
-    // Draw the target position if defined
-    if (targetPos) {
-      drawTarget(svg);
-      drawDispersionRing(svg);
-      drawLine(svg);
-    }
-
-    // draw cursor crosshair and grid label if present
-    if (typeof cursorPixelValue !== 'undefined' && cursorPixelValue && svg) {
-      const cxRaw = Number(cursorPixelValue.x);
-      const cyRaw = Number(cursorPixelValue.y);
-      const rect = overlay.getBoundingClientRect ? overlay.getBoundingClientRect() : { width: 0, height: 0 };
-      const width = rect.width || overlay.clientWidth || 0;
-      const height = rect.height || overlay.clientHeight || 0;
-
-      // determine world coordinates first (may be from store or conversion)
-      let world = cursorWorldValue;
-      if (!world) {
-        try {
-          const wp = pointFromPixel(cursorPixelValue);
-          if (wp) {
-            world = { x: wp.x, y: wp.y };
-          }
-        } catch (e) {
-          // ignore conversion errors
-        }
-      }
-
-      // compute screen coords aligned with viewer's pixelFromPoint if possible
-      let screenX = cxRaw;
-      let screenY = cyRaw;
-      if (world && viewer && typeof viewer.viewport?.pixelFromPoint === 'function') {
-        try {
-          const sp = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(world.x, world.y));
-          if (sp) {
-            screenX = sp.x;
-            screenY = sp.y;
-          }
-        } catch (e) {
-          // ignore and fall back to raw cursor pixel
-        }
-      }
-
-      // Draw the Horizontal line
-      const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      hLine.setAttribute('x1', '0');
-      hLine.setAttribute('y1', String(screenY));
-      hLine.setAttribute('x2', String(width));
-      hLine.setAttribute('y2', String(screenY));
-      hLine.setAttribute('stroke', 'orange');
-      hLine.setAttribute('stroke-width', '1');
-      hLine.setAttribute('stroke-opacity', '0.9');
-      svg.appendChild(hLine);
-
-      // Draw the Vertical line
-      const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      vLine.setAttribute('x1', String(screenX));
-      vLine.setAttribute('y1', '0');
-      vLine.setAttribute('x2', String(screenX));
-      vLine.setAttribute('y2', String(height));
-      vLine.setAttribute('stroke', 'orange');
-      vLine.setAttribute('stroke-width', '1');
-      vLine.setAttribute('stroke-opacity', '0.9');
-      svg.appendChild(vLine);
-
-      // Debug: log cursor values and draw a small dot to verify cursor rendering
-      const cursorDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      cursorDot.setAttribute('cx', String(screenX));
-      cursorDot.setAttribute('cy', String(screenY));
-      cursorDot.setAttribute('r', '3');
-      cursorDot.setAttribute('fill', 'orange');
-      cursorDot.setAttribute('pointer-events', 'none');
-      svg.appendChild(cursorDot);
-
-      if (world) {
-        // `world` contains viewer/world coordinates (not raw image pixels).
-        // Convert to image pixels using the loaded image size, then to meters.
-        const imageX = (typeof viewMapSize.x === 'number') ? world.x * viewMapSize.x : world.x;
-        // Flip Y so origin is bottom-left: world.y is measured from top, convert to image pixels from bottom
-        const imageY = (typeof viewMapSize.y === 'number') ? ((1 - world.y) * viewMapSize.y) : world.y;
-        const metersX = imageX * MAP_SCALE_METERS_PER_PIXEL;
-        const metersY = imageY * MAP_SCALE_METERS_PER_PIXEL;
-        const gridX = Math.floor(metersX / 10);
-        const gridY = Math.floor(metersY / 10);
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        // place label slightly offset from cursor (use screen coords)
-        const labelX = Math.min(screenX + 10, (overlay.clientWidth || width) - 10);
-        const labelY = Math.max(screenY - 10, 14);
-        label.setAttribute('x', String(labelX));
-        label.setAttribute('y', String(labelY));
-        label.setAttribute('fill', 'orange');
-        label.setAttribute('font-size', '14px');
-        label.setAttribute('pointer-events', 'none');
-        // Format as `{COL} {ROW}` — show column then row (Y X)
-        label.textContent = `0${gridX} 0${gridY}`;
-        svg.appendChild(label);
-      }
-    }
+    drawMortarLayer(svg);
+    drawTargetLayer(svg);
+    drawCrosshairLayer(svg);
   }
 
+  // --- LIFECYCLE & STORES ---
+
+  $effect(() => {
+    // Reactive dependencies
+    const _deps = [selectedMortarType, selectedAmmoType, selectedRing, mPos, tPos, cPixel];
+    if (viewer && overlay) {
+      renderOverlay();
+    }
+  });
+
+  const unsubs = [
+    viewerStore.subscribe(v => { 
+      if (viewer) {
+        viewer.removeHandler('animation', renderOverlay);
+        viewer.removeHandler('zoom', renderOverlay);
+      }
+      viewer = v; 
+      if (viewer) {
+        viewer.addHandler('animation', renderOverlay);
+        viewer.addHandler('zoom', renderOverlay);
+      }
+      renderOverlay();
+    }),
+    overlayStore.subscribe(o => { overlay = o; renderOverlay(); }),
+    mortarPosition.subscribe(p => { mPos = p; renderOverlay(); }),
+    targetPosition.subscribe(p => { tPos = p; renderOverlay(); }),
+    cursorPixel.subscribe(c => { cPixel = c; renderOverlay(); })
+  ];
+
   onDestroy(() => {
-    unsubViewer && unsubViewer();
-    unsubOverlay && unsubOverlay();
-    unsubMortar && unsubMortar();
-    unsubTarget && unsubTarget();
-    unsubCursorPixel && unsubCursorPixel();
-    unsubCursorWorld && unsubCursorWorld();
+    if (viewer) {
+        viewer.removeHandler('animation', renderOverlay);
+        viewer.removeHandler('zoom', renderOverlay);
+    }
+    unsubs.forEach(u => u());
   });
 </script>
 
-<!-- This component renders only into the viewer overlay element provided by the map store -->
-<div aria-hidden="true"></div>
+<div class="overlay-layer" aria-hidden="true"></div>
+
+<style>
+  .overlay-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Optional: Global SVG styles */
+  :global(.overlay-layer svg text) {
+    font-family: sans-serif;
+    user-select: none;
+    paint-order: stroke;
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-width: 3px;
+  }
+</style>

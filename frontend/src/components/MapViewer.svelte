@@ -4,8 +4,6 @@
   import MapControls from "./map/MapControls.svelte";
   import MapLayers from "./map/MapLayers.svelte";
   import { 
-    mortarPosition as mortarStore, 
-    targetPosition as targetStore, 
     setCursorFromPixel,
     setViewer
   } from '../stores/mapStore.js';
@@ -73,13 +71,7 @@
     };
   });
 
-  // Sync props with global store
-  const unsubMortar = mortarStore.subscribe(p => { mortarPosition = p; });
-  const unsubTarget = targetStore.subscribe(p => { targetPosition = p; });
-
   onDestroy(() => {
-    unsubMortar();
-    unsubTarget();
   });
 </script>
 

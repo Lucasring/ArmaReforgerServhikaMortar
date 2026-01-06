@@ -1,10 +1,14 @@
 <script>
 	import { getMortarState } from "$lib/mortar_state.svelte";
+    import ControlPanel from "../components/ControlPanel.svelte";
 
     let mortar_state = getMortarState(); 
 
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
-<p>Current Position: {mortar_state.position.x}X - {mortar_state.position.y}</p>
+<div class='flex h-screen w-full'>
+    <div class='w-full bg-gray-800'></div>
+    <div class='justify-end items-stretch h-screen'>
+        <ControlPanel></ControlPanel>
+    </div>
+</div>

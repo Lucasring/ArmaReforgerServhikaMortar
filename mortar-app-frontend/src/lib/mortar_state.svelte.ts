@@ -1,20 +1,35 @@
 import {setContext, getContext} from 'svelte';
-import type {Point} from '$lib/types';
+import { calculateDistanceMeters, calculateAzimuthDegrees } from './map_math';
 
+import type {Point} from '$lib/types';
 /**
  * @brief Mortar State container for Global State access
  */
 export class MortarState {
+    
+    // Mortar Details
+    mortar_position : Point | null = $state(null);
+    mortar_type : string | null = $state(null);
+    shell_type : string | null = $state(null);
+    ring : number | null = $state(0);
 
-    position : Point = $state({x: 0, y: 0});
-    type : string = $state('heavy');
-    ring : number = 0;
+    // Target Details
+    target_position : Point | null = $state(null);
 
-    setPosition(x: number, y: number) {
-        this.position.x = x;
-        this.position.y = y;
-    }
+    target_distance : number | null = $derived.by(() => {
+        if (this.mortar_position && this.target_position) {
+            return calculateDistanceMeters(this.mortar_position, this.target_position);
+        }
+        return null;
+    });
 
+    target_azimuth : number | null = $derived.by(() => {
+        if (this.mortar_position && this.target_position) {
+            return calculateAzimuthDegrees(this.mortar_position, this.target_position);
+        }
+        return null;
+    });
+    
 }
 
 /** 

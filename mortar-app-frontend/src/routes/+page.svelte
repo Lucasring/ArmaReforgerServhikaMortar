@@ -7,7 +7,7 @@
 </script>
 
 <div class='flex h-screen w-full'>
-    <div class='w-full bg-gray-800'></div>
+    <div class='w-full bg-black'></div>
     <div class='justify-end items-stretch h-screen'>
         <ControlPanel></ControlPanel>
     </div>

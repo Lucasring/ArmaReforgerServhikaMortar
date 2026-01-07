@@ -1,34 +1,36 @@
 <script lang='ts'>
-	// import type OpenSeadragon from 'openseadragon';
-    // import { onMount } from 'svelte';
+	import type OpenSeadragon from 'openseadragon';
+    import { onMount } from 'svelte';
 
-    // onMount(async () => {
-    //     // const OSD = (await import("openseadragon")).default;
-    //     // const viewer : OpenSeadragon.Viewer = new OSD.Viewer({
-    //     //         id : 'openseadragon-instance',
-    //     //         prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
-    //     //         tileSources: {
-    //     //             type: "image",
-    //     //             url: "/new_map.jpg",
-    //     //         },
-    //     //         showNavigationControl: false,
-    //     //         gestureSettingsMouse: { clickToZoom: false },
-    //     //         maxZoomLevel: 5,
-    //     //         springStiffness: 150,
-    //     //     });
+    function viewportClickHandler(event : OpenSeadragon.CanvasClickEvent) {
+        if (event.quick) {
+            console.log("Action: ", event.position)
+        }
+    }
 
-    //     // // Debug: Log if the image actually opens
-    //     // viewer.addHandler('open', () => {
-    //     //     console.log("OSD: Image opened successfully!");
-    //     // });
+    onMount(async () => {
+        const OSD = (await import("openseadragon")).default;
+        const viewer : OpenSeadragon.Viewer = new OSD.Viewer({
+                id : 'openseadragon-instance',
+                prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
+                tileSources: {
+                    type: "image",
+                    url: "/map.jpg",
+                },
+                showNavigationControl: false,
+                gestureSettingsMouse: { clickToZoom: false },
+                maxZoomLevel: 5,
+                springStiffness: 150,
+                clickTimeThreshold: 350,  // Default is 300, 350 is more forgiving
+                clickDistThreshold: 10,   // Default is 5, 10 allows for slight finger/mouse shake
+            });
 
-    //     // viewer.addHandler('open-failed', (msg) => {
-    //     //     console.error("OSD: Image failed to load", msg);
-    //     // });
-    // });
+        // --- Register Event Handlers ---
+        viewer.addHandler('canvas-click', viewportClickHandler);
+    });
 
 </script>
 
-<div class='bg-black w-screen h-screen'>
-    <!-- <div id='openseadragon-instance' class="w-full h-full bg-red-900"></div> -->
+<div class='w-screen h-screen'>
+    <div id='openseadragon-instance'  class="w-full h-full bg-black"></div>
 </div>

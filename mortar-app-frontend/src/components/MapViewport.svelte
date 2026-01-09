@@ -1,16 +1,20 @@
 <script lang='ts'>
+    import MapCanvas from './MapCanvas.svelte';
 	import type OpenSeadragon from 'openseadragon';
+    import type { Point, MapClickEvent } from '$lib/types';
     import { onMount } from 'svelte';
+	import type { CanvasDoubleClickEvent } from 'openseadragon';
 
-    function viewportClickHandler(event : OpenSeadragon.CanvasClickEvent) {
-        if (event.quick) {
-            console.log("Action: ", event.position)
-        }
-    }
+    // OpenseaDragon Viewer Instance
+    let viewer : OpenSeadragon.Viewer | null = null;
 
+    // --- Event Handlers ---
+    let map_click_event : MapClickEvent | null = $state(null)
+
+    // --- Initial Mount & OpenSeadragon Initialization ---
     onMount(async () => {
         const OSD = (await import("openseadragon")).default;
-        const viewer : OpenSeadragon.Viewer = new OSD.Viewer({
+        viewer = new OSD.Viewer({
                 id : 'openseadragon-instance',
                 prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
                 tileSources: {
@@ -26,11 +30,41 @@
             });
 
         // --- Register Event Handlers ---
-        viewer.addHandler('canvas-click', viewportClickHandler);
-    });
+        viewer.addHandler('canvas-click', (e) => {
+            const event : MouseEvent = e.originalEvent as MouseEvent
+            map_click_event = {
+                type : "click",
+                position : {
+                    x : event.clientX,
+                    y : event.clientY
+                }
+            }
+        });
 
+        viewer.addHandler('canvas-double-click', (e : CanvasDoubleClickEvent) => {
+            const event : MouseEvent = e.originalEvent as MouseEvent
+            map_click_event = {
+                type : "double-click",
+                position : {
+                    x : event.clientX,
+                    y : event.clientY
+                }
+            }
+        });
+    });
+    
 </script>
 
+
 <div class='w-screen h-screen'>
-    <div id='openseadragon-instance'  class="w-full h-full bg-black"></div>
+    <!-- Openseadragon Map -->
+    <div 
+        role="presentation"
+        id='openseadragon-instance'  
+        class="w-full h-full bg-black" 
+        oncontextmenu={(e) => {e.preventDefault()}}>
+    </div>
+    <div class="absolute inset-0 pointer-events-none z-10">
+        <MapCanvas map_click_event={map_click_event} osd_viewer={viewer}></MapCanvas>
+    </div>
 </div>

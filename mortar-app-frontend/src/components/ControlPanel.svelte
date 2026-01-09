@@ -1,7 +1,7 @@
 <script lang="ts">
   
   import { MAP_SCALE_METERS_PER_PIXEL, mortarTypes } from "$lib/mortar_config";
-  import type { MortarConfig, Mortar, MortarAmmo, RingData, BallisticData} from "$lib/types"
+  import type { MortarConfig, Mortar, MortarAmmo, RingData, BallisticData} from "$lib/mortar_config_types"
   import { getMortarState, MortarState } from "$lib/mortar_state.svelte";
 
   // Get the MortarState fro mthe context

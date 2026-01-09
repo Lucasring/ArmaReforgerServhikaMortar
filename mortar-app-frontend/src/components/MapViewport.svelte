@@ -6,7 +6,7 @@
 	import type { CanvasDoubleClickEvent } from 'openseadragon';
 
     // OpenseaDragon Viewer Instance
-    let viewer : OpenSeadragon.Viewer | null = null;
+    let viewer : OpenSeadragon.Viewer | null = $state(null);
 
     // --- Event Handlers ---
     let map_click_event : MapClickEvent | null = $state(null)

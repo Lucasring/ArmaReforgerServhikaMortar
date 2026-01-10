@@ -1,5 +1,5 @@
 <script lang='ts'>
-    import MapCanvas from './MapCanvas.svelte';
+    
 	import type OpenSeadragon from 'openseadragon';
     import type { Point, MapClickEvent } from '$lib/types';
     import { onMount } from 'svelte';
@@ -7,12 +7,14 @@
 
     // OpenseaDragon Viewer Instance
     let viewer : OpenSeadragon.Viewer | null = $state(null);
+    let MapCanvas = $state<any>(null);
 
     // --- Event Handlers ---
     let map_click_event : MapClickEvent | null = $state(null)
 
     // --- Initial Mount & OpenSeadragon Initialization ---
     onMount(async () => {
+        MapCanvas = (await import("./MapCanvas.svelte")).default;
         const OSD = (await import("openseadragon")).default;
         viewer = new OSD.Viewer({
                 id : 'openseadragon-instance',
@@ -65,6 +67,8 @@
         oncontextmenu={(e) => {e.preventDefault()}}>
     </div>
     <div class="absolute inset-0 pointer-events-none z-10">
-        <MapCanvas map_click_event={map_click_event} osd_viewer={viewer}></MapCanvas>
+        {#if MapCanvas}
+            <MapCanvas map_click_event={map_click_event} osd_viewer={viewer}></MapCanvas>
+        {/if}
     </div>
 </div>

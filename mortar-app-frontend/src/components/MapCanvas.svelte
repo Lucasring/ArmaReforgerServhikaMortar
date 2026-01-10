@@ -1,6 +1,7 @@
 <script lang="ts">
     
     import type OpenSeadragon from 'openseadragon';
+    // import type {drawCircle, drawLine, drawRing, drawText} from "$lib/osd_map_primatives"
 
     // --- Custom Types ---
     interface Props {
@@ -24,6 +25,7 @@
         position : {x : 0, y : 0}
     })
 
+    // --- Methods ---
     $effect(() => {
         if (!map_click_event) { return }
 
@@ -39,6 +41,7 @@
                 console.error("unknown MapClickEvent type");
         }
     });
+
 </script>
 
 {#snippet contextButton(label : string, action : (arg0: MouseEvent) => void)}
@@ -53,6 +56,7 @@
 {/snippet}
 
 <div class="">
+    <!-- <svg id="map-drawing-layer" class="point-events-none" style="width : 100%; height: 100%"></svg> -->
     {#if !context_menu.is_hidden}
     <div 
         class="flex flex-col fixed z-50 bg-stone-800 rounded-lg p-1 gap-1 pointer-events-auto" 

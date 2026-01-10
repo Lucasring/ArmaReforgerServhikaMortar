@@ -16,8 +16,12 @@ function applyAttributes(el: SVGElement, attr: Record<string, string>) {
 export function pageToViewport(
     viewer : OpenSeadragon.Viewer, point : Point
 ) : OpenSeadragon.Point {
-    const page_point = new OpenSeadragon.Point(point.x, point.y);
-    return viewer.viewport.pointFromPixel(page_point);
+    const viewport_rect = viewer.container.getBoundingClientRect();
+    const viewer_pixel = new OpenSeadragon.Point(
+        point.x - viewport_rect.left - window.scrollX,
+        point.y - viewport_rect.top - window.scrollY
+    );
+    return viewer.viewport.pointFromPixel(viewer_pixel);
 }
 
 export function worldToViewport(
@@ -28,8 +32,16 @@ export function worldToViewport(
     );
 }
 
+export function pageToWorld(
+    viewer : OpenSeadragon.Viewer, point : Point
+) : Point {
+    return viewer.viewport.viewportToImageCoordinates(
+        pageToViewport(viewer, point)
+    );
+}
+
 export function drawCircle(
-    center : OpenSeadragon.Point, radius : number, attributes : Record<string, string>
+    center : Point, radius : number, attributes : Record<string, string>
 ) : SVGElement {
     const element = createElementSVG('circle');
     element.setAttribute('cx', String(center.x));

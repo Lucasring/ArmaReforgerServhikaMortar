@@ -5,8 +5,9 @@
     // --- Imports ---
     import type { Point, MapClickEvent } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { drawCircle, pageToWorld } from '$lib/osd_map_primatives';
+	import { drawCircle, pageToWorldMeters, pageToWorldPixels } from '$lib/osd_map_primatives';
     import OpenSeadragon from 'openseadragon';
+	import { MAP_SCALE_METERS_PER_PIXEL } from '$lib/mortar_config';
 
     // --- Custom Types ---
     interface Props {
@@ -36,7 +37,7 @@
         const event_type : string = map_click_event.type
         switch(event_type) {
             case "click":
-                const position = pageToWorld(osd_viewer, map_click_event.position);
+                const position = pageToWorldMeters(osd_viewer, map_click_event.position);
                 console.log(`Click: ${map_click_event.position.x} ${map_click_event.position.y}`)
                 console.log(`Draw Circle: ${position.x} ${position.y}`);
                 canvas_element?.appendChild(
@@ -69,7 +70,9 @@
                 const image_size = worldItem.getContentSize();
                 
                 // Set coordinate system to match map pixels
-                canvas_element.setAttribute('viewBox', `0 0 ${image_size.x} ${image_size.y}`);
+                const map_size_x = image_size.x * MAP_SCALE_METERS_PER_PIXEL;
+                const map_size_y = image_size.y * MAP_SCALE_METERS_PER_PIXEL
+                canvas_element.setAttribute('viewBox', `0 0 ${map_size_x} ${map_size_y}`);
 
                 // Prevent duplicate overlays
                 if (!osd_viewer.getOverlayById(canvas_element)) {
@@ -103,6 +106,7 @@
     </button>
 {/snippet}
 
+<!-- Component HTML Root -->
 <div class="w-full h-full">
     <svg id="map-drawing-layer" class="point-events-none" style="width : 100%; height: 100%"></svg>
     {#if !context_menu.is_hidden}

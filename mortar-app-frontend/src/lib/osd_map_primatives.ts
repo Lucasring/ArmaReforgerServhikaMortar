@@ -1,5 +1,6 @@
 import type { Point } from "./types";
 import OpenSeadragon from "openseadragon";
+import { MAP_SCALE_METERS_PER_PIXEL } from "./mortar_config";
 
 export type CoordSpace = 'page' | 'viewport' | 'world';
 
@@ -32,12 +33,22 @@ export function worldToViewport(
     );
 }
 
-export function pageToWorld(
+export function pageToWorldPixels(
     viewer : OpenSeadragon.Viewer, point : Point
 ) : Point {
     return viewer.viewport.viewportToImageCoordinates(
         pageToViewport(viewer, point)
     );
+}
+
+export function pageToWorldMeters(
+    viewer : OpenSeadragon.Viewer, point : Point
+) : Point {
+    const pixel_point = pageToWorldPixels(viewer, point);
+    return {
+        x : pixel_point.x * MAP_SCALE_METERS_PER_PIXEL,
+        y : pixel_point.y * MAP_SCALE_METERS_PER_PIXEL,
+    }
 }
 
 export function drawCircle(

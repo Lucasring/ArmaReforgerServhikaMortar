@@ -63,7 +63,7 @@ export function drawCircle(
 }
 
 export function drawLine(
-    p1 : OpenSeadragon.Point, p2 : OpenSeadragon.Point, attributes : Record<string, string>
+    p1 : Point, p2 : Point, attributes : Record<string, string>
 ) {
     const element = createElementSVG('line');
     element.setAttribute('x1', String(p1.x));
@@ -75,7 +75,7 @@ export function drawLine(
 }
 
 export function drawRing(
-    center: OpenSeadragon.Point, radiusInMeters: number, attr: Record<string, string>
+    center: Point, radiusInMeters: number, attr: Record<string, string>
 ) {
     const points = [];
     const segments = 64;
@@ -95,7 +95,7 @@ export function drawRing(
 }
 
 export function drawText(
-    text: string, position: OpenSeadragon.Point, attr: Record<string, string>
+    text: string, position: Point, attr: Record<string, string>
 ) {
     const element = createElementSVG('text');
     element.setAttribute('x', String(position.x));

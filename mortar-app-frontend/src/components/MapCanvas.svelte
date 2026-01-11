@@ -2,13 +2,6 @@
     
     export const ssr = false;
 
-    // --- Imports ---
-    import type { Point, MapClickEvent } from '$lib/types';
-	import { onMount } from 'svelte';
-	import { drawCircle, pageToWorldMeters, pageToWorldPixels } from '$lib/osd_map_primatives';
-    import OpenSeadragon from 'openseadragon';
-	import { MAP_SCALE_METERS_PER_PIXEL } from '$lib/mortar_config';
-
     // --- Custom Types ---
     interface Props {
         map_click_event : MapClickEvent | null;
@@ -19,16 +12,29 @@
         is_hidden : boolean;
         position : Point;
     }
+
+    // --- Imports ---
+    import type { Point, MapClickEvent } from '$lib/types';
+	import { onMount } from 'svelte';
+	import { drawCircle, pageToWorldMeters, pageToWorldPixels } from '$lib/osd_map_primatives';
+    import OpenSeadragon from 'openseadragon';
+	import { MAP_SCALE_METERS_PER_PIXEL } from '$lib/mortar_config';
+	import type { MapScene } from '$lib/map_scene';
+	import { table } from 'console';
     
     // --- Variables ---
     let { map_click_event, osd_viewer } : Props = $props();
-
+    let canvas_element : HTMLElement | null = $state(null);
     let context_menu : ContextMenu = $state({
         is_hidden : true,
         position : {x : 0, y : 0}
     });
 
-    let canvas_element : HTMLElement | null = $state(null);
+    let map_scene : MapScene = $state({
+        mortar : null,
+        target : null,
+        target_path : null,
+    });
 
     // --- Methods ---
     $effect(() => {
@@ -93,6 +99,7 @@
             osd_viewer.addOnceHandler('open', setupOverlay);
         }
     });
+    
 </script>
 
 {#snippet contextButton(label : string, action : (arg0: MouseEvent) => void)}

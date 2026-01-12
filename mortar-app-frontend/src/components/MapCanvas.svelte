@@ -4,65 +4,83 @@
 
     // --- Custom Types ---
     interface Props {
-        map_click_event : MapClickEvent | null;
         osd_viewer : OpenSeadragon.Viewer | null;
     }
 
-    interface ContextMenu {
-        is_hidden : boolean;
-        position : Point;
-    }
-
     // --- Imports ---
-    import type { Point, MapClickEvent } from '$lib/types';
-	import { onMount } from 'svelte';
-	import { drawCircle, pageToWorldMeters, pageToWorldPixels } from '$lib/osd_map_primatives';
+    import type { Point } from '$lib/types';
+	import { drawCircle, drawLine, pageToWorldMeters, pageToWorldPixels } from '$lib/map/map_primatives';
     import OpenSeadragon from 'openseadragon';
 	import { MAP_SCALE_METERS_PER_PIXEL } from '$lib/mortar_config';
-	import type { MapScene } from '$lib/map_scene';
-	import { table } from 'console';
+	import { sceneAddMortar, sceneAddTarget, type MapScene } from '$lib/map/map_scene';
+	import { getMortarState, MortarState } from '$lib/mortar_state.svelte';
     
     // --- Variables ---
-    let { map_click_event, osd_viewer } : Props = $props();
+    let { osd_viewer } : Props = $props();
+    const mortar_state : MortarState = getMortarState();
     let canvas_element : HTMLElement | null = $state(null);
-    let context_menu : ContextMenu = $state({
-        is_hidden : true,
-        position : {x : 0, y : 0}
-    });
 
-    let map_scene : MapScene = $state({
-        mortar : null,
-        target : null,
-        target_path : null,
-    });
+    let map_scene : MapScene | null = $derived.by(() => {
+        const { 
+            mortar_position: m_pos, 
+            mortar_range: m_range, 
+            target_position: t_pos, 
+            target_dispersion: t_disp 
+        } = mortar_state;
 
-    // --- Methods ---
-    $effect(() => {
-        if (!map_click_event || !osd_viewer) { return }
+        let temp_scene : MapScene = {
+            mortar : null,
+            target : null,
+            target_path : null
+        };
 
-        const event_type : string = map_click_event.type
-        switch(event_type) {
-            case "click":
-                const position = pageToWorldMeters(osd_viewer, map_click_event.position);
-                console.log(`Click: ${map_click_event.position.x} ${map_click_event.position.y}`)
-                console.log(`Draw Circle: ${position.x} ${position.y}`);
-                canvas_element?.appendChild(
-                    drawCircle(
-                        position,
-                        50.0,
-                        { fill: '#3b82f6', stroke: 'red', 'stroke-width': '10' }
-                    )
-                )
-                break;
-            case "double-click":
-                context_menu.position = map_click_event.position;
-                context_menu.is_hidden = false;
-                break;
-            default:
-                console.error("unknown MapClickEvent type");
+        const is_mortar_valid = (m_pos && m_range !== null);
+        const is_target_valid = (t_pos && t_disp !== null)
+
+        if (is_mortar_valid) {
+            temp_scene.mortar = sceneAddMortar(m_pos, m_range);
         }
+
+        if (is_target_valid) {
+            temp_scene.target = sceneAddTarget(t_pos, t_disp)
+        }
+
+        if (is_mortar_valid && is_target_valid) {
+            console.log("draw line")
+            temp_scene.target_path = drawLine(m_pos, t_pos, {
+                'stroke' : 'blue', 
+                'stroke-width' : 5, 
+                'stroke-dasharray': '5,5' 
+            });
+        }
+
+        return temp_scene
     });
 
+    // MapScene Update Draw
+    $effect(() => {
+        if (canvas_element) {
+            canvas_element.innerHTML = '';
+        }
+
+        if (canvas_element && map_scene.mortar) {
+            canvas_element.appendChild(map_scene.mortar.center);
+            canvas_element.appendChild(map_scene.mortar.range);
+            canvas_element.appendChild(map_scene.mortar.range_text);
+        }
+
+        if (canvas_element && map_scene.target) {
+            canvas_element.appendChild(map_scene.target.center);
+            canvas_element.appendChild(map_scene.target.dispersion);
+            canvas_element.appendChild(map_scene.target.dispersion_text);
+        }
+
+        if (canvas_element && map_scene.target_path) {
+            canvas_element.appendChild(map_scene.target_path)
+        }
+    })
+
+    // MapCanvas load effect
     $effect(() => {
         if (!osd_viewer) return;
 
@@ -86,7 +104,6 @@
                         element: canvas_element,
                         location: new OpenSeadragon.Rect(0, 0, 1, image_size.y / image_size.x)
                     });
-                    console.log("SVG Overlay successfully attached to World space.");
                 }
             }
         };
@@ -99,30 +116,14 @@
             osd_viewer.addOnceHandler('open', setupOverlay);
         }
     });
-    
+
+    $inspect(map_scene)
+
 </script>
 
-{#snippet contextButton(label : string, action : (arg0: MouseEvent) => void)}
-    <button 
-        class="w-full bg-stone-700 rounded-lg text-white pl-4 pr-4 hover:bg-stone-600" onclick={(e) => {
-            context_menu.is_hidden = true;
-            e.stopPropagation();
-            action(e);
-        }}>
-        {label}
-    </button>
-{/snippet}
+
 
 <!-- Component HTML Root -->
 <div class="w-full h-full">
     <svg id="map-drawing-layer" class="point-events-none" style="width : 100%; height: 100%"></svg>
-    {#if !context_menu.is_hidden}
-    <div 
-        class="flex flex-col fixed z-50 bg-stone-800 rounded-lg p-1 gap-1 pointer-events-auto" 
-        style="left: {context_menu.position.x}px; top: {context_menu.position.y}px;"
-    >
-        {@render contextButton("Set Mortar Position", (e) => {console.log("Set Mortar")})}
-        {@render contextButton("Set Target Position", (e) => {console.log("Set Target")})}
-    </div>
-    {/if}
 </div>

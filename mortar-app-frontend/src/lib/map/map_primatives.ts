@@ -1,6 +1,6 @@
-import type { Point } from "./types";
+import type { Point } from "../types";
 import OpenSeadragon from "openseadragon";
-import { MAP_SCALE_METERS_PER_PIXEL } from "./mortar_config";
+import { MAP_SCALE_METERS_PER_PIXEL } from "../mortar_config";
 
 export type CoordSpace = 'page' | 'viewport' | 'world';
 
@@ -8,7 +8,7 @@ function createElementSVG(tag : string) {
     return document.createElementNS('http://www.w3.org/2000/svg', tag);
 }
 
-function applyAttributes(el: SVGElement, attr: Record<string, string>) {
+function applyAttributes(el: SVGElement, attr: Record<string, string | number>) {
     Object.entries(attr).forEach(
         ([key, val]) => el.setAttribute(key, String(val))
     );
@@ -52,7 +52,7 @@ export function pageToWorldMeters(
 }
 
 export function drawCircle(
-    center : Point, radius : number, attributes : Record<string, string>
+    center : Point, radius : number, attributes : Record<string, string | number>
 ) : SVGElement {
     const element = createElementSVG('circle');
     element.setAttribute('cx', String(center.x));
@@ -63,7 +63,7 @@ export function drawCircle(
 }
 
 export function drawLine(
-    p1 : Point, p2 : Point, attributes : Record<string, string>
+    p1 : Point, p2 : Point, attributes : Record<string, string | number>
 ) {
     const element = createElementSVG('line');
     element.setAttribute('x1', String(p1.x));
@@ -75,7 +75,7 @@ export function drawLine(
 }
 
 export function drawRing(
-    center: Point, radiusInMeters: number, attr: Record<string, string>
+    center: Point, radiusInMeters: number, attr: Record<string, string | number>
 ) {
     const points = [];
     const segments = 64;
@@ -89,13 +89,14 @@ export function drawRing(
     }
     
     const element = createElementSVG('path');
-    element.setAttribute('d', `M ${points.join(' L ')} Z`);
+    const pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
+    element.setAttribute('d', pathData);
     applyAttributes(element, attr);
     return element;
 }
 
 export function drawText(
-    text: string, position: Point, attr: Record<string, string>
+    text: string, position: Point, attr: Record<string, string | number>
 ) {
     const element = createElementSVG('text');
     element.setAttribute('x', String(position.x));

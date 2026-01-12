@@ -9,8 +9,11 @@
   let mortar_config : MortarConfig = mortarTypes;
 
   // Debug Inspects
-  $inspect(mortar_state.mortar_type);
-  $inspect(mortar_state.shell_type);
+  // $inspect(mortar_state.mortar_type);
+  // $inspect(mortar_state.shell_type);
+  // $inspect(mortar_state.ring);
+  // $inspect(mortar_state.mortar_range);
+  $inspect(mortar_state.target_dispersion);
 
 </script>
 
@@ -47,7 +50,7 @@
     <!-- Mortar Ring Count Selector -->
     <div class="text-white">
       <label for="ring-select" class="font-bold p-1">Ring:</label>
-      <select id="ring-select" class="w-full rounded-lg bg-stone-800">
+      <select id="ring-select" class="w-full rounded-lg bg-stone-800" bind:value={mortar_state.ring}>
         {#if mortar_state.mortar_type && mortar_state.shell_type}
           {@const selectedMortar = mortar_config[mortar_state.mortar_type]}
           {@const selectedShell = selectedMortar?.ammo_types.find(m => m.name === mortar_state.shell_type)}
@@ -83,8 +86,8 @@
         {/if}
       </div>
     {/snippet}
-    {@render displayCalculatedMember("Distance", "m", mortar_state.target_distance)}
-    {@render displayCalculatedMember("Distance", "m", mortar_state.target_azimuth)}
+    {@render displayCalculatedMember("Distance", "m", mortar_state.target_distance?.toFixed(2) ?? 0.00)}
+    {@render displayCalculatedMember("Azimuth", "deg", mortar_state.target_azimuth?.toFixed(2) ?? 0.00)}
     {@render displayCalculatedMember("Elevation", "mils", '-')}
     {@render displayCalculatedMember("Ring", "-", '-')}
     {@render displayCalculatedMember("Time To Impact", "s", '-')}

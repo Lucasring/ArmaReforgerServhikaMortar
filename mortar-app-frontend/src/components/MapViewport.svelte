@@ -69,7 +69,7 @@
             context_menu.is_hidden = false;
         });
     });
-    
+
 </script>
 
 {#snippet contextButton(label : string, action : (arg0: MouseEvent) => void)}
@@ -107,6 +107,6 @@
                 })}
             </div>
         {/if}
-            <MapCanvas osd_viewer={viewer}></MapCanvas>
+        <MapCanvas osd_viewer={viewer}></MapCanvas>
     </div>
 </div>

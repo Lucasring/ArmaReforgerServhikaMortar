@@ -66,7 +66,7 @@
     <!-- Auto Ring Enable -->
     <div class="flex w-full items-center justify-center py-2">
       <label class="text-white font-bold">
-        <input type="checkbox" class="rounded-sm"/> Auto-select Ring
+        <input type="checkbox" class="rounded-sm" onclick={() => {if (mortar_state.ring) mortar_state.ring = 0}}/> Auto-select Ring
       </label>
     </div>
   </div>

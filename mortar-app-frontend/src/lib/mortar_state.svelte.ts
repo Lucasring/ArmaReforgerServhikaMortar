@@ -9,6 +9,7 @@ import { mortarTypes } from './mortar_config';
 export class MortarState {
     
     // Mortar Details
+    mouse_position : Point | null = $state(null);
     mortar_position : Point | null = $state(null);
     mortar_type : '2B-14 Mortar' | '82mm Mortar' | null = $state('2B-14 Mortar');
     shell_type : string | null = $state('HE Shell');

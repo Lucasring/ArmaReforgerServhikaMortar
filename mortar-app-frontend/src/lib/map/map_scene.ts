@@ -1,5 +1,5 @@
 import type { Point } from "../types";
-import { drawCircle, drawRing, drawText } from "./map_primatives";
+import { drawCircle, drawLine, drawRing, drawText } from "./map_primatives";
 
 export type SvgCircle = SVGElement;
 export type SvgRing = SVGElement;
@@ -19,9 +19,17 @@ export interface SceneTarget {
     dispersion_text : SvgText;
 }
 
+export interface SceneCrosshair {
+    horizontal_right : SvgLine;
+    horizontal_left : SvgLine;
+    vertical_top : SvgLine;
+    vertical_bottom : SvgLine;
+}
+
 export interface MapScene {
     mortar : SceneMortar | null;
     target : SceneTarget | null;
+    crosshair : SceneCrosshair | null;
     target_path : SVGElement | null;
 }
 
@@ -68,5 +76,41 @@ export function sceneAddTarget(
         dispersion_text : drawText(`${dispersion}`, dispersion_text_position, { 
             fill: 'red', 'font-size': '50px', 'font-weight': 'bold', 'text-anchor': 'middle'
         })
+    }
+}
+
+export function sceneAddCrosshair(
+    center : Point,
+    map_width : number,
+    map_height : number
+) : SceneCrosshair {
+    const padding : number = 100; // The gap from the center
+    const style = { 'stroke': 'orange', 'stroke-width': 10 };
+
+    return {
+        // Horizontal Line - Left side
+        horizontal_left : drawLine(
+            { x : 0, y : center.y },             // Start at left edge of map
+            { x : center.x - padding, y : center.y }, // End just before the center
+            style
+        ),
+        // Horizontal Line - Right side
+        horizontal_right : drawLine(
+            { x : map_width, y : center.y },     // Start at right edge of map
+            { x : center.x + padding, y : center.y }, // End just after the center
+            style
+        ),
+        // Vertical Line - Top side
+        vertical_top : drawLine(
+            { x : center.x, y : 0 },              // Start at top edge of map
+            { x : center.x, y : center.y - padding }, // End just above center
+            style
+        ),
+        // Vertical Line - Bottom side
+        vertical_bottom : drawLine(
+            { x : center.x, y : map_height },     // Start at bottom edge of map
+            { x : center.x, y : center.y + padding }, // End just below center
+            style
+        ),
     }
 }

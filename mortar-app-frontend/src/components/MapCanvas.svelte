@@ -21,6 +21,18 @@
     let mortar_state : MortarState = getMortarState();
     let canvas_element : HTMLElement | null = $state(null);
 
+    let map_crosshair : SceneCrosshair | null = $derived.by(() => {
+        if (osd_viewer && mortar_state.mouse_position) {
+            const osd_world = osd_viewer.world.getItemAt(0);
+            return sceneAddCrosshair(
+                mortar_state.mouse_position,
+                osd_world?.getContentSize().x,
+                osd_world?.getContentSize().y,
+            )
+        }
+        return null;
+    });
+
     let map_scene : MapScene | null = $derived.by(() => {
         const { 
             mouse_position: m_mouse_pos,
@@ -93,11 +105,11 @@
             canvas_element.appendChild(map_scene.target_path);
         }
 
-        if (canvas_element && map_scene.crosshair) {
-            canvas_element.appendChild(map_scene.crosshair.horizontal_left);
-            canvas_element.appendChild(map_scene.crosshair.horizontal_right);
-            canvas_element.appendChild(map_scene.crosshair.vertical_bottom);
-            canvas_element.appendChild(map_scene.crosshair.vertical_top);
+        if (canvas_element && map_crosshair) {
+            canvas_element.appendChild(map_crosshair.horizontal_left);
+            canvas_element.appendChild(map_crosshair.horizontal_right);
+            canvas_element.appendChild(map_crosshair.vertical_bottom);
+            canvas_element.appendChild(map_crosshair.vertical_top);
         }
     })
 

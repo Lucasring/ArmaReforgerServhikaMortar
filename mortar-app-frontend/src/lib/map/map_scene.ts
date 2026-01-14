@@ -42,7 +42,7 @@ export function sceneAddMortar(
             fill: 'none', stroke: 'blue', 'stroke-width': '5'
         }),
         min_range : drawRing(position, min_range, {
-            fill: 'none', stroke: 'blue', 'stroke-width': '5'
+            fill: 'rgba(0, 0, 255, 0.1)', stroke: 'blue', 'stroke-width': '5'
         }),
         range_text : drawText(`${max_range}`, range_text_position, { 
             fill: 'blue', 'font-size': '50px', 'font-weight': 'bold', 'text-anchor': 'middle'

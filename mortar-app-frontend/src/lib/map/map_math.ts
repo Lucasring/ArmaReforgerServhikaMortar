@@ -6,8 +6,7 @@ export function calculateDistanceMeters(pointA : Point, pointB : Point) {
   if (!pointA || !pointB) return null;
   const dx = pointB.x - pointA.x;
   const dy = pointB.y - pointA.y;
-  const distancePixels = Math.sqrt(dx * dx + dy * dy);
-  const distanceMeters = distancePixels * MAP_SCALE_METERS_PER_PIXEL;
+  const distanceMeters = Math.sqrt(dx * dx + dy * dy);
   return distanceMeters;
 }
 

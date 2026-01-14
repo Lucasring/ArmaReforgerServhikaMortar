@@ -89,7 +89,7 @@
     {@render displayCalculatedMember("Distance", "m", mortar_state.target_distance?.toFixed(2) ?? 0)}
     {@render displayCalculatedMember("Azimuth", "deg", mortar_state.target_azimuth?.toFixed(2) ?? 0)}
     {@render displayCalculatedMember("Elevation", "mils", mortar_state.mortar_elevation?.toFixed(0) ?? 0)}
-    {@render displayCalculatedMember("Time To Impact", "s", '-')}
+    {@render displayCalculatedMember("Time To Impact", "s", mortar_state.target_time_to_impact?.toFixed(1) ?? 0)}
   </div>
 
   <!-- Instruction Block -->

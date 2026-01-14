@@ -2,6 +2,7 @@ import {setContext, getContext} from 'svelte';
 import { calculateDistanceMeters, calculateAzimuthDegrees } from './map/map_math';
 import type {Point} from '$lib/types';
 import { mortarTypes } from './mortar_config';
+import type { RingData } from './mortar_config_types';
 
 /**
  * @brief Mortar State container for Global State access
@@ -74,6 +75,31 @@ export class MortarState {
         )?.ballistics.dispersions?.[this.ring] ?? null;
     })
     
+    target_time_to_impact : number | null = $derived.by(() => {
+        if (this.mortar_type === null || this.shell_type === null || this.ring === null) return null;   
+        
+        const ring_data = mortarTypes[this.mortar_type].ammo_types.find(
+            (e) => e.name === this.shell_type
+        )?.ballistics.rings[this.ring] ?? null;
+    
+        if (!ring_data || !this.target_distance) {
+            return null;
+        }
+
+        for (let i = 1; i < ring_data?.length; i++) {
+            if (ring_data[i].range >= this.target_distance) {
+                const lower = ring_data[i - 1];
+                const upper = ring_data[i];
+                const range_delta = upper.range - lower.range;
+                const time_to_impact_delta = upper.time_to_impact - lower.time_to_impact
+                const progress = (this.target_distance - lower.range) / range_delta
+                return lower.time_to_impact + (time_to_impact_delta * progress); 
+            }
+        }
+ 
+        return ring_data.at(-1)?.time_to_impact ?? null;
+    })
+
 }
 
 /** 

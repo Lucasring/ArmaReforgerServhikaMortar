@@ -1,5 +1,5 @@
 cd ./mortar-app-frontend
-npm run install
+npm install
 npm run build
 
 cd ../

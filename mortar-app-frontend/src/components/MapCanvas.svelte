@@ -110,6 +110,7 @@
             canvas_element.appendChild(map_crosshair.horizontal_right);
             canvas_element.appendChild(map_crosshair.vertical_bottom);
             canvas_element.appendChild(map_crosshair.vertical_top);
+            canvas_element.appendChild(map_crosshair.grid_cell_test);
         }
     })
 

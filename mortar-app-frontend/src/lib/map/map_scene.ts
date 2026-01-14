@@ -24,6 +24,7 @@ export interface SceneCrosshair {
     horizontal_left : SvgLine;
     vertical_top : SvgLine;
     vertical_bottom : SvgLine;
+    grid_cell_test : SvgText;
 }
 
 export interface MapScene {
@@ -86,6 +87,10 @@ export function sceneAddCrosshair(
 ) : SceneCrosshair {
     const padding : number = 100; // The gap from the center
     const style = { 'stroke': 'orange', 'stroke-width': 10 };
+    const grid_position = {
+        x : center.x / 100,
+        y : (10000 - center.y) / 100 
+    }
 
     return {
         // Horizontal Line - Left side
@@ -112,5 +117,10 @@ export function sceneAddCrosshair(
             { x : center.x, y : center.y + padding }, // End just below center
             style
         ),
+        grid_cell_test : drawText(
+            `${grid_position.x.toFixed(0).padStart(3, '0')} ${grid_position.y.toFixed(0).padStart(3, '0')}`,
+            { x : center.x + padding, y : center.y - 100},
+            {fill: 'orange', 'font-size': '100px', 'font-weight': 'bold', 'text-anchor': 'left', 'dominant-baseline': 'central'}
+        )
     }
 }

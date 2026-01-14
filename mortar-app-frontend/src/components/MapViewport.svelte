@@ -44,7 +44,7 @@
                 },
                 showNavigationControl: false,
                 gestureSettingsMouse: { clickToZoom: false },
-                maxZoomLevel: 5,
+                maxZoomLevel: 50,
                 springStiffness: 150,
                 clickTimeThreshold: 350,  // Default is 300, 350 is more forgiving
                 clickDistThreshold: 10,   // Default is 5, 10 allows for slight finger/mouse shake

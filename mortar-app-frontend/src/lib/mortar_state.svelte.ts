@@ -10,8 +10,8 @@ export class MortarState {
     
     // Mortar Details
     mortar_position : Point | null = $state(null);
-    mortar_type : '2B-14 Mortar' | '82mm Mortar' | null = $state(null);
-    shell_type : string | null = $state(null);
+    mortar_type : '2B-14 Mortar' | '82mm Mortar' | null = $state('2B-14 Mortar');
+    shell_type : string | null = $state('HE Shell');
     ring : number | null = $state(0);
 
     // Mortar Derived Details

@@ -9,9 +9,6 @@
     let mortar_config : MortarConfig = mortarTypes;
     let mortar_auto_ring_enabled : boolean = $state(true);
 
-    // Debug Inspects
-    $inspect(mortar_auto_ring_enabled);
-
     // Auto Adjust Ring Effect
     $effect(() => {
         const { target_distance, mortar_type, shell_type } = mortar_state;
@@ -56,7 +53,11 @@
         <!-- Mortar Ring Count Selector -->
         <div class="text-white">
             <label for="ring-select" class="font-bold p-1">Ring:</label>
-            <select id="ring-select" class="w-full rounded-lg bg-stone-800" bind:value={mortar_state.ring}>
+            <select 
+                id="ring-select" 
+                class="w-full rounded-lg bg-stone-800 disabled:bg-stone-700" 
+                bind:value={mortar_state.ring} disabled={mortar_auto_ring_enabled}
+            >
                 {#if mortar_state.mortar_type && mortar_state.shell_type}
                 {@const selectedMortar = mortar_config[mortar_state.mortar_type]}
                 {@const selectedShell = selectedMortar?.ammo_types.find(m => m.name === mortar_state.shell_type)}

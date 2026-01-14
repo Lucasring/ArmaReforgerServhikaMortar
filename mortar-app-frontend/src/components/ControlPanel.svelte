@@ -26,7 +26,7 @@
 <div class="flex flex-col gap-4 w-75 p-5 bg-stone-700 h-screen">
     
     <!-- Header -->
-    <h2 class="text-xl text-center font-bold text-white">Mortar Helper V2.2.1</h2>
+    <h2 class="text-xl text-center font-bold text-white">Mortar Helper V2.3.0</h2>
 
     <!-- User Input -->
     <div class="bg-stone-600 rounded-lg p-2">

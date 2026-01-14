@@ -1,12 +1,18 @@
-import adapter from '@sveltejs/adapter-node'; // Change this
+import adapter from '@sveltejs/adapter-static'; // MUST be adapter-static
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
     preprocess: vitePreprocess(),
+
     kit: {
-        // adapter-node respects the 'out' parameter
-        adapter: adapter({ out: 'build' }),
+        adapter: adapter({
+            pages: 'build',
+            assets: 'build',
+            fallback: 'index.html', // This forces the creation of index.html
+            precompress: false,
+            strict: true
+        })
     }
 };
 

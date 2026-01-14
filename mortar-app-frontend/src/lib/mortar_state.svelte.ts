@@ -2,7 +2,6 @@ import {setContext, getContext} from 'svelte';
 import { calculateDistanceMeters, calculateAzimuthDegrees } from './map/map_math';
 import type {Point} from '$lib/types';
 import { mortarTypes } from './mortar_config';
-import type { RingData } from './mortar_config_types';
 
 /**
  * @brief Mortar State container for Global State access
@@ -16,12 +15,20 @@ export class MortarState {
     ring : number | null = $state(0);
 
     // Mortar Derived Details
-    mortar_range : number | null = $derived.by(() => {
+    mortar_max_range : number | null = $derived.by(() => {
         if (this.mortar_type === null || this.shell_type === null || this.ring === null) return null;   
 
         return mortarTypes[this.mortar_type].ammo_types.find(
             (e) => e.name === this.shell_type
         )?.ballistics.rings[this.ring]?.at(-1)?.range ?? null;
+    })
+
+    mortar_min_range : number | null = $derived.by(() => {
+        if (this.mortar_type === null || this.shell_type === null || this.ring === null) return null;   
+
+        return mortarTypes[this.mortar_type].ammo_types.find(
+            (e) => e.name === this.shell_type
+        )?.ballistics.rings[this.ring]?.at(0)?.range ?? null;
     })
 
     mortar_elevation : number | null = $derived.by(() => {

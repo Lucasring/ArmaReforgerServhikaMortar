@@ -23,7 +23,8 @@
     let map_scene : MapScene | null = $derived.by(() => {
         const { 
             mortar_position: m_pos, 
-            mortar_range: m_range, 
+            mortar_max_range: m_max_range, 
+            mortar_min_range: m_min_range,
             target_position: t_pos, 
             target_dispersion: t_disp 
         } = mortar_state;
@@ -34,11 +35,11 @@
             target_path : null
         };
 
-        const is_mortar_valid = (m_pos && m_range !== null);
+        const is_mortar_valid = (m_pos && m_max_range && m_min_range !== null);
         const is_target_valid = (t_pos && t_disp !== null)
 
         if (is_mortar_valid) {
-            temp_scene.mortar = sceneAddMortar(m_pos, m_range);
+            temp_scene.mortar = sceneAddMortar(m_pos, m_min_range, m_max_range);
         }
 
         if (is_target_valid) {
@@ -65,7 +66,8 @@
 
         if (canvas_element && map_scene.mortar) {
             canvas_element.appendChild(map_scene.mortar.center);
-            canvas_element.appendChild(map_scene.mortar.range);
+            canvas_element.appendChild(map_scene.mortar.min_range);
+            canvas_element.appendChild(map_scene.mortar.max_range);
             canvas_element.appendChild(map_scene.mortar.range_text);
         }
 

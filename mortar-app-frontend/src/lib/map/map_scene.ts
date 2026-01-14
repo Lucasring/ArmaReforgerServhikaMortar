@@ -8,7 +8,8 @@ export type SvgText = SVGElement;
 
 export interface SceneMortar {
     center : SvgCircle;
-    range : SvgRing;
+    max_range : SvgRing;
+    min_range : SvgRing;
     range_text : SvgText;
 }
 
@@ -26,20 +27,24 @@ export interface MapScene {
 
 export function sceneAddMortar(
     position : Point,
-    range : number
+    min_range : number,
+    max_range : number
 ) : SceneMortar {
     const range_text_position = {
         x : position.x,
-        y : position.y - (range + 5)
+        y : position.y - (max_range + 5)
     }
     return {
         center : drawCircle(position, 5, { 
             fill: 'blue', stroke: 'blue', 'stroke-width': '5' 
         }),
-        range : drawRing(position, range, {
+        max_range : drawRing(position, max_range, {
             fill: 'none', stroke: 'blue', 'stroke-width': '5'
         }),
-        range_text : drawText(`${range}`, range_text_position, { 
+        min_range : drawRing(position, min_range, {
+            fill: 'none', stroke: 'blue', 'stroke-width': '5'
+        }),
+        range_text : drawText(`${max_range}`, range_text_position, { 
             fill: 'blue', 'font-size': '50px', 'font-weight': 'bold', 'text-anchor': 'middle'
         })
     }

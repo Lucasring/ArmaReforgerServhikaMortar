@@ -62,7 +62,6 @@
         }
 
         if (is_mortar_valid && is_target_valid) {
-            console.log("draw line")
             temp_scene.target_path = drawLine(m_pos, t_pos, {
                 'stroke' : 'blue', 
                 'stroke-width' : 5, 

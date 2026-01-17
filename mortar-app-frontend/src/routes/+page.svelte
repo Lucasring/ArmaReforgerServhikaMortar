@@ -1,9 +1,7 @@
 <script lang='ts'>
-	import { getMortarState } from "$lib/mortar_state.svelte";
 	import { onMount } from "svelte";
     import ControlPanel from "../components/ControlPanel.svelte";
 
-    let mortar_state = getMortarState(); 
     let MapViewport : any | null = $state<any>(null);
 
     onMount(async () => {

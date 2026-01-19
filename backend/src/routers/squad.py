@@ -47,6 +47,7 @@ def get_targets(
     statement = select(Target).join(SquadSession).where(SquadSession.name == session_name)
     return db.exec(statement).all()
 
+
 @router.post("/targets", response_model=Target)
 def add_targets(
     base_target: TargetCreate, 

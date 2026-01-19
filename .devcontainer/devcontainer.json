@@ -2,20 +2,27 @@
   "name": "Svelte 5 Dev Environment",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
   "features": {
-    "ghcr.io/devcontainers/features/git:1": {}
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "installTools": true,
+      "version": "3.12" 
+    }
   },
   "customizations": {
     "vscode": {
       "extensions": [
         "svelte.svelte-vscode",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "ms-python.python",        // Essential for Python support
+        "ms-python.vscode-pylance", // Fast, feature-rich language support
+        "njpwerner.autodocstring"   // Optional: helps with docstrings
       ]
     }
   },
   "mounts": [
     "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
   ],
-  "forwardPorts": [5173],
+  "forwardPorts": [5173, 8000],
   "postCreateCommand": "cd frontend && npm install"
 }

@@ -48,6 +48,37 @@ def get_targets(
     return db.exec(statement).all()
 
 
+@router.delete("/targets", response_model=Target)
+def remove_target(
+    target_key : int,
+    session_name: str = Security(session_key),
+    db : Session = Depends(get_session),
+):
+    # 1. Fetch the target
+    target = db.get(Target, target_key)
+    if not target:
+        raise HTTPException(status_code=404, detail="Target not found")
+    
+    # 2. Security Check: Verify this target belongs to the requester's squad
+    statement = (
+        select(SquadSession)
+        .where(SquadSession.id == target.session_id)
+        .where(SquadSession.name == session_name)
+    )
+
+    authorized_session = db.exec(statement).first()
+    if not authorized_session:
+        raise HTTPException(
+            status_code=403, 
+            detail="You do not have permission to delete this target"
+        )
+    
+    # 3. Delete the target
+    db.delete(target)
+    db.commit()
+    return target
+
+
 @router.post("/targets", response_model=Target)
 def add_targets(
     base_target: TargetCreate, 

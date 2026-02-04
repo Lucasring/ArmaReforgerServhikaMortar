@@ -1,6 +1,7 @@
 <script lang='ts'>
 	import { onMount } from "svelte";
     import ControlPanel from "../components/ControlPanel.svelte";
+    import NavBar from "../components/Navbar/Navbar.svelte";
 
     let MapViewport : any | null = $state<any>(null);
 
@@ -11,13 +12,16 @@
 </script>
 
 <div class='flex h-screen w-full'>
-    {#if MapViewport}
-        <MapViewport></MapViewport> 
-    {:else}
-        <div class="h-full w-full bg-black flex items-center justify-center">
-            <b class="text-stone-300 text-[5rem]">Loading...</b>
-        </div>
-    {/if}
+    <div class="flex flex-col h-screen w-full">
+        <NavBar></NavBar>
+        {#if MapViewport}
+            <MapViewport></MapViewport> 
+        {:else}
+            <div class="h-full w-full bg-black flex items-center justify-center">
+                <b class="text-stone-300 text-[5rem]">Loading...</b>
+            </div>
+        {/if}
+    </div>
     <div class='justify-end items-stretch h-screen'>
         <ControlPanel></ControlPanel>
     </div>

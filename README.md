@@ -17,19 +17,33 @@ A desktop web application to assist Arma Reforger players in aiming mortars. The
 
 ## Setup
 
-1. Install dependencies:
+### Frontend
+
+1. Navigate to the `mortar-app-frontend`
+
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-2. Place your map image in the `public` directory as `map.jpg`
 
 3. Start the development server:
    ```bash
    npm run dev
    ```
 
-4. Open your browser to `http://localhost:3000`
+4. Open your browser to `http://localhost:5173`
+
+### Backend
+
+1. Create a python virtual environment or install the `backend/requirements.txt`
+   ```bash
+   source ./.venv/bin/activate
+   ```
+
+2. Run the following command to launch the FastAPI backend
+   ```bash
+   uvicorn backend.src.main:app --reload
+   ```
 
 ## Usage
 

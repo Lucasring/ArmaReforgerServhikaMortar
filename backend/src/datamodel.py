@@ -8,18 +8,18 @@ class SquadSession(SQLModel, table=True):
     users : list["User"] = Relationship(back_populates="session")
     targets: list["Target"] = Relationship(back_populates="session")
 
-class TargetCreate(BaseModel):
-    label : str
+class TargetCreateRequest(BaseModel):
+    user_id : int = Field(default=None, foreign_key="user.id")
     x : float
     y : float
-    timestamp : float | None = None
+
+class TargetRemoveRequest(BaseModel):
+    user_id : int = Field(default=None, foreign_key="user.id")
 
 class Target(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    label: str
     x: float
     y: float
-    timestamp: float | None = None
     
     # Session Connection
     session_id : int = Field(default=None, foreign_key="squadsession.id")

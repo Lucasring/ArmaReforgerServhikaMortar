@@ -16,11 +16,14 @@ export interface Target {
     timestamp : number;
 }
 
-export interface TargetCreate {
-    label : string;
+export interface TargetCreateRequest {
+    user_id : number;
     x : number;
     y : number;
-    timestamp : number;
+}
+
+export interface TargetRemoveRequest {
+    user_id : number;
 }
 
 export interface User {

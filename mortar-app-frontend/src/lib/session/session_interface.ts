@@ -1,6 +1,6 @@
 import type {
-    SquadSession, JoinSquadSessionResponse, 
-    Target, TargetCreate,
+    JoinSquadSessionResponse, 
+    TargetCreateRequest, TargetRemoveRequest, Target,
     User
 } from "$lib/session/session_types"
 
@@ -43,15 +43,18 @@ export async function getTargets(): Promise<Target[]> {
     return request<Target[]>('/targets');
 }
 
-export async function addTarget(target: TargetCreate): Promise<Target> {
+export async function addTarget(target_request : TargetCreateRequest): Promise<Target> {
     return request<Target>('/targets', {
         method: 'POST',
-        body: JSON.stringify(target)
+        body: JSON.stringify(target_request)
     });
 }
 
-export async function deleteTarget(id: number): Promise<Target> {
-    return request<Target>(`/targets/${id}`, { method: 'DELETE' });
+export async function deleteTarget(target_request : TargetRemoveRequest): Promise<Target> {
+    return request<Target>(`/targets`, { 
+        method: 'DELETE',
+        body: JSON.stringify(target_request)
+    });
 }
 
 

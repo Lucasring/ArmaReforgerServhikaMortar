@@ -2,12 +2,12 @@ import { browser } from '$app/environment';
 import { getTargets, getUsers, joinSession } from './session_interface';
 import type {
     SquadSession, JoinSquadSessionResponse,
-    Target, TargetCreate,
+    Target, TargetCreateRequest, TargetRemoveRequest,
     User
 } from "$lib/session/session_types"
 import { getContext, setContext } from 'svelte';
 
-class SquadSessionContext {
+export class SquadSessionContext {
 
     // Meta
     sync_interval_ms : number = 2000;

@@ -40,6 +40,7 @@ class SquadSessionContext {
         if (!this.local_session || !this.local_user) return;
 
         this.stopSyncInterval()
+        this.is_session_joined = false;
     }
 
     async sync() {

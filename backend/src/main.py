@@ -27,7 +27,7 @@ app.add_middleware(
     allow_origins=origins,  # Allows SvelteKit to access the API
     allow_credentials=True, # Allows cookies (if you use them later)
     allow_methods=["*"],    # Allows GET, POST, DELETE, etc.
-    allow_headers=["Content-Type", "X-SESSION-KEY"],
+    allow_headers=["*"],
 )
 
 # Include the squad routes

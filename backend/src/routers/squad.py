@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 from typing import List
 
 from ..database import get_session
-from ..datamodel import SquadSession, Target, TargetCreate
+from ..datamodel import SquadSession, Target, TargetCreate, User
 
 session_key = APIKeyHeader(name='X-SESSION-KEY')
 
@@ -13,43 +13,79 @@ router = APIRouter(
     tags=["squad"]
 )
 
-@router.post("/sessions", response_model=SquadSession)
-def get_or_create_session(
-    session_name: str, 
+# ----- Session Routes -----
+
+@router.post("/join-session")
+def join_session(
+    session_name : str, 
+    user_name : str,
     db: Session = Depends(get_session)
 ):
-    # 1. Search to see if session_name already exists - return session if exists
-    statement = select(SquadSession).where(SquadSession.name == session_name)
-    found_session = db.exec(statement).first()
+    # Search to see if session_name already exists - return session if exists
+    session_statement = select(SquadSession).where(SquadSession.session_name == session_name)
+    session_obj = db.exec(session_statement).first()
 
-    if found_session:
-        return found_session
-
-    # 2. Create a new session
-    new_session = SquadSession(name=session_name)
-
-    # 3. Commit the session to the database
-    try:
-        db.add(new_session)
+    # Create a SquadSession if the session does not exist
+    if not session_obj:
+        session_obj = SquadSession(session_name=session_name)
+        db.add(session_obj)
         db.commit()
-        db.refresh(new_session)
-        return new_session
+        db.refresh(session_obj)
+
+    # Check to see if the request user already exists
+    existing_user = db.exec(
+        select(User).where(User.name == user_name, User.session_id == session_obj.id)
+    ).first()
+
+    if existing_user:
+        return {
+            "user": existing_user,
+            "session": session_obj,
+        }
+
+    # Create a New User for the session
+    new_user = User(
+        name=user_name, 
+        session=session_obj,
+        is_active=True
+    )
+
+    # Commit the User to the database
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        db.refresh(session_obj)
+        return {
+            'user' : new_user,
+            'session' : session_obj,
+        }
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Failed to create or join session")
+        raise HTTPException(status_code=400, detail="Failed join session")
 
+@router.get('/get-session', response_model=SquadSession)
+def get_squad_session(
+    session_name : str = Security(session_key),
+    db : Session = Depends(get_session)
+):
+    statement = select(SquadSession).where(SquadSession.session_name == session_name)
+    session = db.exec(statement).first()
+    return session
+
+# ----- Target Routes -----
 
 @router.get("/targets", response_model=List[Target])
-def get_targets(
+def get_session_targets(
     session_name: str = Security(session_key), 
     db: Session = Depends(get_session)
 ):
-    statement = select(Target).join(SquadSession).where(SquadSession.name == session_name)
+    statement = select(Target).join(SquadSession).where(SquadSession.session_name == session_name)
     return db.exec(statement).all()
 
 
 @router.delete("/targets", response_model=Target)
-def remove_target(
+def remove_session_target(
     target_key : int,
     session_name: str = Security(session_key),
     db : Session = Depends(get_session),
@@ -63,7 +99,7 @@ def remove_target(
     statement = (
         select(SquadSession)
         .where(SquadSession.id == target.session_id)
-        .where(SquadSession.name == session_name)
+        .where(SquadSession.session_name == session_name)
     )
 
     authorized_session = db.exec(statement).first()
@@ -80,13 +116,13 @@ def remove_target(
 
 
 @router.post("/targets", response_model=Target)
-def add_targets(
+def add_session_target(
     base_target: TargetCreate, 
     session_name : str = Security(session_key),
     db: Session = Depends(get_session)
 ):
     # 1. Verify the current_session exists
-    squad_session = db.exec(select(SquadSession).where(SquadSession.name == session_name)).first()
+    squad_session = db.exec(select(SquadSession).where(SquadSession.session_name == session_name)).first()
     if not squad_session or squad_session.id is None:
         raise HTTPException(status_code=404, detail="Session not found")
 
@@ -105,3 +141,18 @@ def add_targets(
     db.refresh(target)
 
     return target
+
+# ----- User Routes -----
+
+@router.get("/users", response_model=List[User])
+def get_session_users(
+    session_name : str = Security(session_key),
+    db : Session = Depends(get_session)
+):
+    statement = select(SquadSession).where(SquadSession.session_name == session_name)
+    session = db.exec(statement).first()
+
+    if not session:
+        return HTTPException(status_code=404, detail="Session not found")
+
+    return session.users

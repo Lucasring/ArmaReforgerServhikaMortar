@@ -12,6 +12,7 @@
     // View Session Modal
     let is_view_session_modal_open : boolean = $state(false);
 
+    // Squad Session Context
     let squad_session = getSquadSessionState();
 
     async function userJoinSession() {

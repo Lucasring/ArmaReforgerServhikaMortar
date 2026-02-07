@@ -3,10 +3,12 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import {initMortarState} from '$lib/mortar_state.svelte'
 	import { initMortarUserCache } from '$lib/mortar_user_cache.svelte';
+	import { initSquadSesssion } from '$lib/session/session_state.svelte';
 
 	// Initialize MortarState for all page contexts
 	initMortarState();
 	initMortarUserCache();
+	initSquadSesssion();
 
 	// Initialize Props
 	let { children } = $props();

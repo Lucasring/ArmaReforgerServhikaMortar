@@ -1,26 +1,28 @@
 <script lang="ts">
 
-    import {joinSession} from "$lib/session_interface"
-    import type {SquadSession} from "$lib/session_interface"
+    import { joinSession } from "$lib/session/session_interface"
+    import { getSquadSessionState } from "$lib/session/session_state.svelte";
     import Modal from "./Modal.svelte"
     
     let entered_session_name : string = $state('')
     let entered_username : string = $state('')
-    let squad_session : SquadSession | null = $state(null)
-
     let is_session_modal_open : boolean = $state(false)
 
-    async function userJoinSession() {
-        if (!entered_session_name) return;
+    let squad_session = getSquadSessionState();
 
-        squad_session = await joinSession(entered_session_name)
-        console.log(squad_session)
+    async function userJoinSession() {
+        if (!entered_session_name || !entered_username) return;
+
+        squad_session.join_session(entered_session_name, entered_username);
+        is_session_modal_open = false;
     }
 
     function userLeaveSession() {
-        is_session_modal_open = !is_session_modal_open;
+        squad_session.leave_session();
+        is_session_modal_open = false;
     }
 
+    $inspect(squad_session.local_session)
 
 </script>
 

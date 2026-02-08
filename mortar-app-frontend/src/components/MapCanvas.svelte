@@ -8,13 +8,10 @@
     }
 
     // --- Imports ---
-    import type { Point } from '$lib/types';
-	import { drawCircle, drawLine, pageToWorldMeters, pageToWorldPixels } from '$lib/map/map_primatives';
+	import { pageToWorldMeters } from '$lib/map/map_primatives';
     import OpenSeadragon from 'openseadragon';
 	import { MAP_SCALE_METERS_PER_PIXEL } from '$lib/mortar_config';
-	import { sceneAddCrosshair, sceneAddMortar, sceneAddTarget, type MapScene, type SceneCrosshair } from '$lib/map/map_scene';
 	import { getMortarState, MortarState } from '$lib/mortar_state.svelte';
-	import { onDestroy } from 'svelte';
     
     // Canvas Layers
     import MortarLayer from '../CanvasLayers/MortarLayer.svelte';

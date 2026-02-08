@@ -10,10 +10,10 @@ export interface JoinSquadSessionResponse {
 
 export interface Target {
     id : number;
-    label : string;
     x : number;
     y : number;
-    timestamp : number;
+    session_id : number;
+    user_id : number;
 }
 
 export interface TargetCreateRequest {

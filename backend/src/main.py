@@ -4,12 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from backend.src.database import create_db_and_tables
 from backend.src.routers import squad
+from backend.src.cleanup import cleanup_inactive_users
 
-# The modern way to handle startup/shutdown
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # This runs when the app starts
     create_db_and_tables()
+    await cleanup_inactive_users()
     yield
     # Code here runs when the app stops (e.g., closing connections)
 

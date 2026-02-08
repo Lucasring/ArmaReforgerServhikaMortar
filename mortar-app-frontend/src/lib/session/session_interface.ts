@@ -58,6 +58,6 @@ export async function deleteTarget(target_request : TargetRemoveRequest): Promis
 }
 
 
-export async function getUsers(): Promise<User[]> {
-    return request<User[]>('/users');
+export async function getUsers(user_id : number): Promise<User[]> {
+    return request<User[]>(`/users?user_id=${encodeURIComponent(user_id)}`);
 }

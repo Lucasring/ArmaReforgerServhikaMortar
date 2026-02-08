@@ -52,7 +52,7 @@ export class SquadSessionContext {
 
         Promise.all([
             getTargets(),
-            getUsers()
+            getUsers(this.local_user.id)
         ]).then(([target_data, user_data]) => {
             this.targets = target_data;
             this.users = user_data;

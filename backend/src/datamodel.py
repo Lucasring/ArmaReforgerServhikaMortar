@@ -26,7 +26,7 @@ class Target(SQLModel, table=True):
     session: SquadSession = Relationship(back_populates="targets")
 
     # User Connection
-    user_id : int = Field(default=None, foreign_key="user.id", unique=True)
+    user_id : int = Field(default=None, foreign_key="user.id", unique=True, ondelete="CASCADE")
     user : "User" = Relationship(back_populates="target")
 
 class User(SQLModel, table=True):
@@ -37,9 +37,10 @@ class User(SQLModel, table=True):
     id : int | None = Field(default=None, primary_key=True)
     name : str
     is_active : bool
+    last_request_time : float | None = None
 
     # Mortar Session Details
-    target : Optional["Target"] = Relationship(back_populates="user")
+    target : Optional["Target"] = Relationship(back_populates="user", sa_relationship_kwargs={"passive_deletes": True})
 
     # Session Connection
     session_id : int = Field(default=None, foreign_key="squadsession.id")

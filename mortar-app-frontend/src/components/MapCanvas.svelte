@@ -17,6 +17,7 @@
     import MortarLayer from '../CanvasLayers/MortarLayer.svelte';
     import TargetLayer from '../CanvasLayers/TargetLayer.svelte';
     import CrosshairLayer from '../CanvasLayers/CrosshairLayer.svelte';
+    import SessionTargetLayer from '../CanvasLayers/SessionTargetLayer.svelte';
 
     // --- Variables ---
     let { osd_viewer } : Props = $props();
@@ -88,5 +89,6 @@
         {#if map_dimensions}
             <CrosshairLayer map_width={map_dimensions.x} map_height={map_dimensions.y}/>
         {/if}
+        <SessionTargetLayer/>
     </svg>
 </div>

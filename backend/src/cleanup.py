@@ -13,7 +13,7 @@ from .datamodel import SquadSession, Target, User
 async def cleanup_inactive_users():
     # Use the Session directly as a context manager
     with Session(engine) as session:
-        invalid_time = time() - 10.0
+        invalid_time = time() - 300.0
         
         query = (
             delete(User)

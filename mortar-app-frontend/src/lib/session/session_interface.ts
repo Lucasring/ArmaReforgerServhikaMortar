@@ -4,7 +4,7 @@ import type {
     User
 } from "$lib/session/session_types"
 
-const BACKEND_BASE_URL : string = 'http://localhost:8000/squad';
+const BACKEND_BASE_URL : string = '/api/squad';
 
 async function request<T>(endpoint : string, options? : RequestInit) : Promise<T> {
     const session_name = localStorage.getItem('squad_name') || '';

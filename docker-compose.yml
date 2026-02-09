@@ -6,11 +6,12 @@ services:
     container_name: mortar_frontend
     ports:
       - "80:80"
-  
+    depends_on:
+      - backend
+
   backend:
     build: ./backend
     image: mortar-backend:latest
     container_name: mortar_backend
-    ports:
-      - "8000:8000"
-
+    expose:
+      - "8000"

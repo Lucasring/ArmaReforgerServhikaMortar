@@ -10,7 +10,7 @@ from ..datamodel import SquadSession, Target, TargetCreateRequest, TargetRemoveR
 session_key = APIKeyHeader(name='X-SESSION-KEY')
 
 router = APIRouter(
-    prefix="/squad",
+    prefix="/api/squad",
     tags=["squad"]
 )
 

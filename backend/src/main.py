@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from backend.src.database import create_db_and_tables
-from backend.src.routers import squad
-from backend.src.cleanup import cleanup_inactive_users
+from .database import create_db_and_tables
+from .routers import squad
+from .cleanup import cleanup_inactive_users
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

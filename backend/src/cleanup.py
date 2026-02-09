@@ -6,8 +6,8 @@ from typing import List
 from time import time
 from loguru import logger
 
-from backend.src.database import get_session, engine
-from backend.src.datamodel import SquadSession, Target, User
+from .database import get_session, engine
+from .datamodel import SquadSession, Target, User
 
 @repeat_every(seconds=5)
 async def cleanup_inactive_users():

@@ -10,7 +10,7 @@
     let is_join_session_modal_open : boolean = $state(false);
 
     // View Session Modal
-    let is_view_session_modal_open : boolean = $state(true);
+    let is_view_session_modal_open : boolean = $state(false);
 
     // Squad Session Context
     let squad_session = getSquadSessionState();

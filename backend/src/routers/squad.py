@@ -74,6 +74,21 @@ def get_squad_session(
     session = db.exec(statement).first()
     return session
 
+@router.get('/leave-session')
+def leave_squad_session(
+    user_id : int,
+    session_name : str = Security(session_key),
+    db : Session = Depends(get_session)
+):
+    statement = select(User).where(User.id == user_id)
+    user = db.exec(statement).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    db.delete(user)
+    db.commit()
+    return {'status' : 'success'}
+
 # ----- Target Routes -----
 
 @router.get("/targets", response_model=List[Target])

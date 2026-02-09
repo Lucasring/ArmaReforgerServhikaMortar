@@ -38,6 +38,10 @@ export async function joinSession(session_name : string, user_name : string) : P
     return data;
 }
 
+export async function leaveSession(user_id : number) : Promise<{ status : string }> {
+    return request<{ status : string }>(`/leave-session?user_id=${encodeURIComponent(user_id)}`);
+}
+
 
 export async function getTargets(): Promise<Target[]> {
     return request<Target[]>('/targets');

@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { getTargets, getUsers, joinSession } from './session_interface';
+import { getTargets, getUsers, joinSession, leaveSession } from './session_interface';
 import type {
     SquadSession, JoinSquadSessionResponse,
     Target, TargetCreateRequest, TargetRemoveRequest,
@@ -39,6 +39,7 @@ export class SquadSessionContext {
     async leave_session() {
         if (!this.local_session || !this.local_user) return;
 
+        leaveSession(this.local_user.id)
         this.stopSyncInterval()
         this.is_session_joined = false;
     }

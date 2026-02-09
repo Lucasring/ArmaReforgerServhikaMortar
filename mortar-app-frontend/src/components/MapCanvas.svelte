@@ -84,11 +84,11 @@
 <!-- Component HTML Root -->
 <div class="w-full h-full">
     <svg bind:this={canvas_element} class="point-events-none" style="width : 100%; height: 100%; pointer-events: none;">
+        <SessionTargetLayer/>
         <MortarLayer/>
         <TargetLayer/>
         {#if map_dimensions}
             <CrosshairLayer map_width={map_dimensions.x} map_height={map_dimensions.y}/>
         {/if}
-        <SessionTargetLayer/>
     </svg>
 </div>

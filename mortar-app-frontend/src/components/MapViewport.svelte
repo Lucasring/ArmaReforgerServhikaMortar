@@ -83,7 +83,7 @@
     </button>
 {/snippet}
 
-<div class='w-screen h-screen'>
+<div class='w-full h-full'>
     <!-- Openseadragon Map -->
     <div 
         role="presentation"

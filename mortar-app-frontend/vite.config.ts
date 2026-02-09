@@ -8,8 +8,15 @@ export default defineConfig({
 
 	server: {
 		host: '0.0.0.0',
-		port: 5147,
+		port: 5173,
 		strictPort: true, // Prevents Vite from switching ports if 5137 is "busy"
+		proxy: {
+			// When you fetch("/api/users"), Vite forwards it to the backend
+			'/api': {
+				target: 'http://localhost:8000',
+				changeOrigin: true,
+			}
+		}
   	},
 
 	test: {

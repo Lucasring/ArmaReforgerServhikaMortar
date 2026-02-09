@@ -1,7 +1,17 @@
 version: "3"
 services:
-  site:
-    build: .
+  frontend:
+    build: ./mortar-app-frontend
+    image: mortar-frontend:latest
+    container_name: mortar_frontend
     ports:
       - "80:80"
-    container_name: my-mortar-app-container
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    image: mortar-backend:latest
+    container_name: mortar_backend
+    expose:
+      - "8000"

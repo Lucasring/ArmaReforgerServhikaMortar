@@ -10,7 +10,7 @@
     let is_join_session_modal_open : boolean = $state(false);
 
     // View Session Modal
-    let is_view_session_modal_open : boolean = $state(false);
+    let is_view_session_modal_open : boolean = $state(true);
 
     // Squad Session Context
     let squad_session = getSquadSessionState();
@@ -136,6 +136,16 @@
             </button>
         </div>
 
+        <!-- Users List -->
+        <div class="flex flex-col w-full bg-stone-500 rounded-md border border-black p-1">
+            <div class="flex font-bold justify-center border-b border-black/20">Session Users</div>
+            {#each squad_session.users as user, idx}
+                <div class="flex py-1 w-full justify-between border-b border-black/20 last:border-b-0">
+                    <div class="font-mono">{idx}:</div>
+                    <div class="font-mono">{user.name}</div>
+                </div>
+            {/each}
+        </div>
         <!-- Buttons -->
         <div class="flex justify-center gap-2 w-full">
             <!-- Leave Session Button -->

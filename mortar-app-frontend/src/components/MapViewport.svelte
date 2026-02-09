@@ -40,7 +40,7 @@
                 prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
                 tileSources: {
                     type: "image",
-                    url: "/map.jpg",
+                    url: "/260208_map.jpg",
                 },
                 showNavigationControl: false,
                 gestureSettingsMouse: { clickToZoom: false },

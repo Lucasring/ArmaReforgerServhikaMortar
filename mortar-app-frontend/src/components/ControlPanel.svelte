@@ -8,7 +8,7 @@
 <div class="flex flex-col gap-4 w-75 p-5 bg-stone-700 h-screen">
     
     <!-- Header -->
-    <h2 class="text-xl text-center font-bold text-stone-300">Mortar Helper V3.0.1</h2>
+    <h2 class="text-xl text-center font-bold text-stone-300">Mortar Helper</h2>
 
     <!-- User Input -->
     <MortarInputPanel />

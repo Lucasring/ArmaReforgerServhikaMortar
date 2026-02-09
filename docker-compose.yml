@@ -2,14 +2,14 @@ version: "3"
 services:
   frontend:
     build: ./mortar-app-frontend
-    image: ghcr.io/Lucasring/mortar-frontend:latest
+    image: mortar-frontend:latest
     container_name: mortar_frontend
     ports:
       - "80:80"
   
   backend:
     build: ./backend
-    image: ghcr.io/Lucasring/mortar-backend:latest
+    image: mortar-backend:latest
     container_name: mortar_backend
     ports:
       - "8000:8000"

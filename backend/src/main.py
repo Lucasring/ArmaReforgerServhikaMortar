@@ -2,9 +2,12 @@ from fastapi import FastAPI
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+
 from .database import create_db_and_tables
-from .routers import squad
 from .cleanup import cleanup_inactive_users
+from .routers import session
+from .routers import target
+from .routers import user
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,7 +35,9 @@ app.add_middleware(
 )
 
 # Include the squad routes
-app.include_router(squad.router)
+app.include_router(session.session_router)
+app.include_router(target.target_router)
+app.include_router(user.user_router)
 
 @app.get("/")
 def health_check():

@@ -5,7 +5,7 @@ from time import time
 
 from ..security import session_key
 from ..database import get_session
-from ..datamodel import SquadSession, Target, TargetCreateRequest, TargetRemoveRequest, User
+from ..datamodel import SquadSession, SquadSessionUpdateRequest, Target, User
 
 session_router = APIRouter(
     prefix="/api",
@@ -63,13 +63,25 @@ def join_session(
         db.rollback()
         raise HTTPException(status_code=400, detail="Failed join session")
 
-@session_router.get('/get-session', response_model=SquadSession)
+@session_router.get('/get-session-update', response_model=SquadSessionUpdateRequest)
 def get_squad_session(
+    user_id : int,
     session_name : str = Security(session_key),
     db : Session = Depends(get_session)
 ):
+    # Get the session
     statement = select(SquadSession).where(SquadSession.session_name == session_name)
     session = db.exec(statement).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # Record Requesting User Timestamp
+    current_user = db.get(User, user_id)
+    if current_user:
+        current_user.last_request_time = time()
+        db.add(current_user)
+        db.commit()
+
     return session
 
 @session_router.get('/leave-session')

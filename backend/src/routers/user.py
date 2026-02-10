@@ -25,11 +25,4 @@ def get_session_users(
     if not session:
         return HTTPException(status_code=404, detail="Session not found")
 
-    # Record Requesting User Timestamp
-    current_user = db.get(User, user_id)
-    if current_user:
-        current_user.last_request_time = time()
-        db.add(current_user)
-        db.commit()
-
     return session.users

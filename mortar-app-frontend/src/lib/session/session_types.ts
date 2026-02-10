@@ -3,6 +3,12 @@ export interface SquadSession {
     session_name : string;
 }
 
+export interface SquadSessionUpdateResponse {
+    session_name : string,
+    targets : Target[]
+    users : User[]
+}
+
 export interface JoinSquadSessionResponse {
     user: User;
     session: SquadSession;

@@ -3,7 +3,11 @@ import type { MortarState } from "$lib/mortar_state.svelte";
 import type { SquadSessionContext } from "./session_state.svelte";
 import { addTarget } from "./session_interface";
 
-
+/**
+ * Registers TargetSync event which sends user target data to the backend server
+ * @param mortar_state The users mortar_state object
+ * @param session_state The users session_state object
+ */
 export function registerTargetSync(
     mortar_state : MortarState, 
     session_state : SquadSessionContext
@@ -19,7 +23,5 @@ export function registerTargetSync(
                 y : user_target.y
             })
         }
-
-        console.log("Sent Target")
     })
 }

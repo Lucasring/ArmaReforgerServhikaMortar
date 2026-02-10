@@ -8,6 +8,11 @@ class SquadSession(SQLModel, table=True):
     users : list["User"] = Relationship(back_populates="session")
     targets: list["Target"] = Relationship(back_populates="session")
 
+class SquadSessionUpdateRequest(BaseModel):
+    session_name : str
+    targets : list["Target"]
+    users : list["User"]
+
 class TargetCreateRequest(BaseModel):
     user_id : int = Field(default=None, foreign_key="user.id")
     x : float

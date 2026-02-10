@@ -36,7 +36,7 @@
     <!-- Mortar App Title -->
     <div class="h-full relative border-r">
         <div class="font-bold px-4 h-full flex items-center">
-            Mortar App V4.0.0
+            Mortar App V4.1.0
         </div>
     </div>
 

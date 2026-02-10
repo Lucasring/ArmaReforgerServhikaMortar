@@ -1,5 +1,5 @@
 import type {
-    JoinSquadSessionResponse, 
+    JoinSquadSessionResponse, SquadSessionUpdateResponse,
     TargetCreateRequest, TargetRemoveRequest, Target,
     User
 } from "$lib/session/session_types"
@@ -64,4 +64,8 @@ export async function deleteTarget(target_request : TargetRemoveRequest): Promis
 
 export async function getUsers(user_id : number): Promise<User[]> {
     return request<User[]>(`/user?user_id=${encodeURIComponent(user_id)}`);
+}
+
+export async function getSessionUpdate(user_id : number) : Promise<SquadSessionUpdateResponse> {
+    return request<SquadSessionUpdateResponse>(`/get-session-update?user_id=${encodeURIComponent(user_id)}`)
 }

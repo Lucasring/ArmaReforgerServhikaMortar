@@ -1,9 +1,8 @@
 import { browser } from '$app/environment';
-import { getTargets, getUsers, joinSession, leaveSession } from './session_interface';
+import { getTargets, getUsers, joinSession, leaveSession, getSessionUpdate } from './session_interface';
 import type {
-    SquadSession, JoinSquadSessionResponse,
-    Target, TargetCreateRequest, TargetRemoveRequest,
-    User
+    SquadSession, JoinSquadSessionResponse, SquadSessionUpdateResponse,
+    Target, User
 } from "$lib/session/session_types"
 import { getContext, setContext } from 'svelte';
 
@@ -51,15 +50,12 @@ export class SquadSessionContext {
             return;
         }
 
-        Promise.all([
-            getTargets(),
-            getUsers(this.local_user.id)
-        ]).then(([target_data, user_data]) => {
-            this.targets = target_data;
-            this.users = user_data;
+        getSessionUpdate(this.local_user.id).then((response) => {
+            this.targets = response.targets
+            this.users = response.users
         }).catch(err => {
             console.error("Sync", err);
-        })
+        });
     }
 
     startSyncInterval() {

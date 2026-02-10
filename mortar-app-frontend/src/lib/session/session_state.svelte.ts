@@ -1,27 +1,42 @@
 import { browser } from '$app/environment';
-import { getTargets, getUsers, joinSession, leaveSession, getSessionUpdate } from './session_interface';
+import { joinSession, leaveSession, getSessionUpdate } from './session_interface';
 import type {
-    SquadSession, JoinSquadSessionResponse, SquadSessionUpdateResponse,
+    SquadSession, JoinSquadSessionResponse,
     Target, User
 } from "$lib/session/session_types"
 import { getContext, setContext } from 'svelte';
 
 export class SquadSessionContext {
 
-    // Meta
+    /** The syncronization interval period */
     sync_interval_ms : number = 2000;
+
+    /** The browsers syncronization handle ID callback */
     sync_interval_id : number | null = null;
 
-    // Local Session State
+    /** The local session the user has changed or a null for no session */
     local_session : SquadSession | null = $state(null);
+
+    /** The local user object the user has joined as or a null for no session/user */
     local_user : User | null = $state(null);
+
+    /** Boolean indicator for if a session is currently joined */
     is_session_joined : boolean = $state(false);
 
-    // Backend Session State
+    /** The ID of the session in the backend */
     session_id : number | null = $state(null);
+
+    /** The Users recieved from the Session */
     users : User[] = $state([]);
+
+    /** The Targets recieved from the Session */
     targets : Target[] = $state([]);
 
+    /**
+     * Join a session with the given parameters
+     * @param session_name The name of the session to join
+     * @param user_name The username to join the session as
+     */
     async join_session(session_name : string, user_name : string) {
         const response : JoinSquadSessionResponse = await joinSession(
             session_name,
@@ -35,6 +50,10 @@ export class SquadSessionContext {
         this.startSyncInterval();
     }
 
+    /**
+     * Leave the current session by stopping the sync interval and sending disconnect request to server
+     * @returns void
+     */
     async leave_session() {
         if (!this.local_session || !this.local_user) return;
 
@@ -43,6 +62,10 @@ export class SquadSessionContext {
         this.is_session_joined = false;
     }
 
+    /**
+     * Session Sync Logic
+     * @returns void
+     */
     async sync() {
 
         if (!this.local_session || !this.local_user) {
@@ -58,12 +81,19 @@ export class SquadSessionContext {
         });
     }
 
+    /**
+     * Starts the Session Sync/Update
+     * @returns void
+     */
     startSyncInterval() {
         if (!browser || this.sync_interval_id) return;
         this.sync();
         this.sync_interval_id = window.setInterval(() => this.sync(), this.sync_interval_ms);
     }
 
+    /**
+     * Stops the Session Sync/Update interval
+     */
     stopSyncInterval() {
         if (this.sync_interval_id) {
             clearInterval(this.sync_interval_id);

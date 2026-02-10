@@ -4,7 +4,7 @@ import type {
     User
 } from "$lib/session/session_types"
 
-const BACKEND_BASE_URL : string = '/api/squad';
+const BACKEND_BASE_URL : string = '/api';
 
 async function request<T>(endpoint : string, options? : RequestInit) : Promise<T> {
     const session_name = localStorage.getItem('squad_name') || '';
@@ -44,18 +44,18 @@ export async function leaveSession(user_id : number) : Promise<{ status : string
 
 
 export async function getTargets(): Promise<Target[]> {
-    return request<Target[]>('/targets');
+    return request<Target[]>('/target');
 }
 
 export async function addTarget(target_request : TargetCreateRequest): Promise<Target> {
-    return request<Target>('/targets', {
+    return request<Target>('/target', {
         method: 'POST',
         body: JSON.stringify(target_request)
     });
 }
 
 export async function deleteTarget(target_request : TargetRemoveRequest): Promise<Target> {
-    return request<Target>(`/targets`, { 
+    return request<Target>(`/target`, { 
         method: 'DELETE',
         body: JSON.stringify(target_request)
     });
@@ -63,5 +63,5 @@ export async function deleteTarget(target_request : TargetRemoveRequest): Promis
 
 
 export async function getUsers(user_id : number): Promise<User[]> {
-    return request<User[]>(`/users?user_id=${encodeURIComponent(user_id)}`);
+    return request<User[]>(`/user?user_id=${encodeURIComponent(user_id)}`);
 }

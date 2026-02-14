@@ -1,6 +1,5 @@
 <script lang="ts">
 
-    import { joinSession } from "$lib/session/session_interface"
     import { getSquadSessionState } from "$lib/session/session_state.svelte";
     import JoinSessionModal from "./Modals/JoinSessionModal.svelte";
     import ViewSessionModal from "./Modals/ViewSessionModal.svelte";

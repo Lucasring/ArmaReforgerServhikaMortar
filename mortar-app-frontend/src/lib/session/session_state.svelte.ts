@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { joinSession, leaveSession, getSessionUpdate } from './session_interface';
+import { session_interface } from './session_interface';
 import type {
     SquadSession, JoinSquadSessionResponse,
     Target, User
@@ -38,7 +38,7 @@ export class SquadSessionContext {
      * @param user_name The username to join the session as
      */
     async join_session(session_name : string, user_name : string) {
-        const response : JoinSquadSessionResponse = await joinSession(
+        const response : JoinSquadSessionResponse = await session_interface.joinSession(
             session_name,
             user_name
         );
@@ -57,7 +57,7 @@ export class SquadSessionContext {
     async leave_session() {
         if (!this.local_session || !this.local_user) return;
 
-        leaveSession(this.local_user.id)
+        session_interface.leaveSession(this.local_user.id)
         this.stopSyncInterval()
         this.is_session_joined = false;
     }
@@ -73,7 +73,7 @@ export class SquadSessionContext {
             return;
         }
 
-        getSessionUpdate(this.local_user.id).then((response) => {
+        session_interface.getSessionUpdate(this.local_user.id).then((response) => {
             this.targets = response.targets
             this.users = response.users
         }).catch(err => {

@@ -77,89 +77,93 @@ async function request<T>(endpoint : string, options? : RequestInit) : Promise<T
     return parseJSON<T>(response);
 }
 
-/**
- * Join or create a squad session
- * @param session_name - The name of the squad session to join
- * @param user_name - The name of the user joining the session
- * @returns The session join response containing session details and user info
- */
-export async function joinSession(session_name : string, user_name : string) : Promise<JoinSquadSessionResponse> {
-    const params = new URLSearchParams({
-        session_name,
-        user_name
-    })
+export const session_interface = {
 
-    const endpoint = `/join-session?${params.toString()}`;
-    const data = await request<JoinSquadSessionResponse>(endpoint, { method: 'POST' });
+    /**
+     * Join or create a squad session
+     * @param session_name - The name of the squad session to join
+     * @param user_name - The name of the user joining the session
+     * @returns The session join response containing session details and user info
+     */
+    async joinSession(session_name : string, user_name : string) : Promise<JoinSquadSessionResponse> {
+        const params = new URLSearchParams({
+            session_name,
+            user_name
+        })
 
-    localStorage.setItem('squad_name', data.session.session_name);
-    return data;
-}
+        const endpoint = `/join-session?${params.toString()}`;
+        const data = await request<JoinSquadSessionResponse>(endpoint, { method: 'POST' });
 
-/**
- * Leave the current squad session
- * @param user_id - The ID of the user leaving the session
- * @returns Confirmation response with status
- */
-export async function leaveSession(user_id : number) : Promise<{ status : string }> {
-    const params = new URLSearchParams({
-        user_id: user_id.toString()
-    });
-    return request<{ status : string }>(`/leave-session?${params.toString()}`);
-}
+        localStorage.setItem('squad_name', data.session.session_name);
+        return data;
+    },
 
-/**
- * Retrieve all targets for the current session
- * @returns Array of target objects
- */
-export async function getTargets(): Promise<Target[]> {
-    return request<Target[]>('/target');
-}
+    /**
+     * Leave the current squad session
+     * @param user_id - The ID of the user leaving the session
+     * @returns Confirmation response with status
+     */
+    async leaveSession(user_id : number) : Promise<{ status : string }> {
+        const params = new URLSearchParams({
+            user_id: user_id.toString()
+        });
+        return request<{ status : string }>(`/leave-session?${params.toString()}`);
+    },
 
-/**
- * Create a new target in the session
- * @param target_request - The target creation request containing target coordinates and details
- * @returns The created target object
- */
-export async function addTarget(target_request : TargetCreateRequest): Promise<Target> {
-    return request<Target>('/target', {
-        method: 'POST',
-        body: JSON.stringify(target_request)
-    });
-}
+    /**
+     * Retrieve all targets for the current session
+     * @returns Array of target objects
+     */
+    async getTargets(): Promise<Target[]> {
+        return request<Target[]>('/target');
+    },
 
-/**
- * Delete a target from the session
- * @param target_request - The target removal request containing target ID
- * @returns The deleted target object
- */
-export async function deleteTarget(target_request : TargetRemoveRequest): Promise<Target> {
-    return request<Target>(`/target`, { 
-        method: 'DELETE',
-        body: JSON.stringify(target_request)
-    });
-}
+    /**
+     * Create a new target in the session
+     * @param target_request - The target creation request containing target coordinates and details
+     * @returns The created target object
+     */
+    async addTarget(target_request : TargetCreateRequest): Promise<Target> {
+        return request<Target>('/target', {
+            method: 'POST',
+            body: JSON.stringify(target_request)
+        });
+    },
 
-/**
- * Get all users in the current session
- * @param user_id - The ID of the requesting user
- * @returns Array of user objects in the session
- */
-export async function getUsers(user_id : number): Promise<User[]> {
-    const params = new URLSearchParams({
-        user_id: user_id.toString()
-    });
-    return request<User[]>(`/user?${params.toString()}`);
-}
+    /**
+     * Delete a target from the session
+     * @param target_request - The target removal request containing target ID
+     * @returns The deleted target object
+     */
+    async deleteTarget(target_request : TargetRemoveRequest): Promise<Target> {
+        return request<Target>(`/target`, { 
+            method: 'DELETE',
+            body: JSON.stringify(target_request)
+        });
+    },
 
-/**
- * Get the latest session state and updates
- * @param user_id - The ID of the requesting user
- * @returns The session update response containing current session state
- */
-export async function getSessionUpdate(user_id : number) : Promise<SquadSessionUpdateResponse> {
-    const params = new URLSearchParams({
-        user_id: user_id.toString()
-    });
-    return request<SquadSessionUpdateResponse>(`/get-session-update?${params.toString()}`);
-}
+    /**
+     * Get all users in the current session
+     * @param user_id - The ID of the requesting user
+     * @returns Array of user objects in the session
+     */
+    async getUsers(user_id : number): Promise<User[]> {
+        const params = new URLSearchParams({
+            user_id: user_id.toString()
+        });
+        return request<User[]>(`/user?${params.toString()}`);
+    },
+
+    /**
+     * Get the latest session state and updates
+     * @param user_id - The ID of the requesting user
+     * @returns The session update response containing current session state
+     */
+    async getSessionUpdate(user_id : number) : Promise<SquadSessionUpdateResponse> {
+        const params = new URLSearchParams({
+            user_id: user_id.toString()
+        });
+        return request<SquadSessionUpdateResponse>(`/get-session-update?${params.toString()}`);
+    }
+
+};

@@ -5,7 +5,7 @@
     import InstructionsPanel from "./ControlPanelComponents/InstructionsPanel.svelte";
 </script>
 
-<div class="flex flex-col gap-4 w-75 p-5 bg-stone-700 h-screen">
+<div class="flex flex-col gap-4 w-75 p-5 bg-stone-700 h-screen overflow-y-auto">
     
     <!-- Header -->
     <h2 class="text-xl text-center font-bold text-stone-300">Mortar Helper</h2>

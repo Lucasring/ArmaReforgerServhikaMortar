@@ -1,0 +1,45 @@
+use serde::{Serialize};
+use sqlx::{FromRow, PgConnection};
+use serde::{Deserialize};
+
+#[derive(Serialize, FromRow, Debug)]
+pub struct Target {
+    pub id: i32,
+    pub session_id: i32,
+    pub user_id: i32,
+    pub x: f32,
+    pub y: f32,
+}
+
+#[derive(Deserialize)]
+pub struct TargetCreateParams {
+    pub session_id: i32,
+    pub user_id: i32,
+    pub x: f32,
+    pub y: f32,
+}
+
+pub async fn upsert_target(
+    user_id : i32,
+    session_id : i32,
+    target_point : (f32, f32),
+    executor : &mut PgConnection
+) -> Result<Target, sqlx::Error> {
+    sqlx::query_as!(
+        Target,
+        r#"
+            INSERT INTO target (x, y, session_id, user_id)
+                VALUES ($1, $2, $3, $4)
+            ON CONFLICT (session_id, user_id)
+            DO UPDATE SET 
+                x = EXCLUDED.x,
+                y = EXCLUDED.y
+            RETURNING id, x, y, session_id, user_id
+        "#,
+        target_point.0,
+        target_point.1,
+        session_id,
+        user_id
+    ).fetch_one(executor)
+    .await
+}

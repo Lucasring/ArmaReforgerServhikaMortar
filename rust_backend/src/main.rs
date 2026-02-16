@@ -1,0 +1,31 @@
+pub mod models;
+pub mod routes;
+pub mod utils;
+
+use crate::routes::{route_join_session, route_create_or_update_target};
+
+use axum::{routing::post, Router};
+use sqlx::{PgPool};
+use std::net::SocketAddr;
+
+#[tokio::main]
+async fn main() {
+    // Load .env file (needs a DATABASE_URL=postgres://...)
+    dotenvy::dotenv().ok();
+    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    // Create the DB Pool
+    let pool = PgPool::connect(&db_url).await.expect("Failed to connect to DB");
+
+    // Build our application with a single route
+    let app = Router::new()
+        .route("/api/join-session", post(route_join_session))
+        .route("/api/add-target", post(route_create_or_update_target))
+        .with_state(pool);
+
+    // Start the server
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    println!("Server listening on {}", addr);
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app).await.unwrap();
+}

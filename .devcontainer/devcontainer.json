@@ -14,9 +14,14 @@
         "svelte.svelte-vscode",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "ms-python.python",        // Essential for Python support
-        "ms-python.vscode-pylance", // Fast, feature-rich language support
-        "njpwerner.autodocstring"   // Optional: helps with docstrings
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "njpwerner.autodocstring",
+        "serayuzgur.crates",
+        "1YiB.rust-bundle",
+        "rust-lang.rust-analyzer",
+        "fill-labs.dependi",
+        "EchoAPI.echoapi-for-vscode"
       ]
     }
   },

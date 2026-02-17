@@ -1,11 +1,16 @@
 {
-  "name": "Svelte 5 Dev Environment",
+  "name": "Svelte 5 & Rust Dev Environment",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/python:1": {
       "installTools": true,
-      "version": "3.12" 
+      "version": "3.12"
+    },
+    // --- ADDED RUST ---
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "latest",
+      "profile": "minimal"
     }
   },
   "customizations": {
@@ -18,16 +23,15 @@
         "ms-python.vscode-pylance",
         "njpwerner.autodocstring",
         "serayuzgur.crates",
-        "1YiB.rust-bundle",
         "rust-lang.rust-analyzer",
-        "fill-labs.dependi",
-        "EchoAPI.echoapi-for-vscode"
+        "fill-labs.dependi"
       ]
     }
   },
   "mounts": [
-    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=${localWorkspaceFolderBasename}-rust-target,target=${containerWorkspaceFolder}/rust_backend/target,type=volume"
   ],
-  "forwardPorts": [5173, 8000],
-  "postCreateCommand": "bash .devcontainer/setup.sh"
+  "forwardPorts": [5173, 8000, 5432], // Added 5432 for Postgres
+  "postCreateCommand": "cargo install sqlx-cli --no-default-features --features postgres && bash .devcontainer/setup.sh"
 }

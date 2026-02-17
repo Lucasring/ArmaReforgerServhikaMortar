@@ -7,4 +7,7 @@ pip install -r backend/requirements.txt
 cd mortar-app-frontend
 npm install
 
+# Setup Rust
+cargo install sqlx-cli --no-default-features --features postgres
+
 echo "Setup complete! Ready to calculate some mortar trajectories."

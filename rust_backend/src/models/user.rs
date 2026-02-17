@@ -54,3 +54,19 @@ pub async fn get_user(
     ).fetch_one(executor)
     .await
 }
+
+pub async fn delete_user(
+    user_id : i32,
+    executor : &mut PgConnection,
+) -> Result<Users, sqlx::Error> {
+    sqlx::query_as!(
+        Users,
+        r#"
+            DELETE FROM users
+            WHERE id = $1
+            RETURNING *
+        "#,
+        user_id
+    ).fetch_one(executor)
+    .await
+}

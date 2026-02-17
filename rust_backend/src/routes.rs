@@ -1,6 +1,6 @@
-use crate::models::session::{SquadSession, JoinSessionParams, create_squad_session};
+use crate::models::session::{SquadSession, JoinSessionParams, LeaveSessionParams, create_squad_session};
 use crate::models::target::{Target, TargetCreateParams, upsert_target};
-use crate::models::user::{Users, create_user};
+use crate::models::user::{Users, create_user, delete_user};
 
 use axum::extract::{State, Query};
 use axum::{http::StatusCode, Json};
@@ -24,10 +24,27 @@ pub async fn route_join_session(
 
     tx.commit().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // 3. Return both as JSON
     Ok(Json(serde_json::json!({
         "user": user,
         "session": session
+    })))
+}
+
+pub async fn route_leave_session(
+    State(pool) : State<PgPool>,
+    Json(params) : Json<LeaveSessionParams>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+
+    let mut tx = pool.begin().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let deleted_user : Users = delete_user(params.user_id, &mut *tx)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    tx.commit().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(serde_json::json!({
+        "user": deleted_user
     })))
 }
 

@@ -39,7 +39,7 @@
             class="h-full relative border-r hover:bg-stone-600"
         >
             <div class="font-bold px-4 h-full flex items-center">
-                Joined Session: "{squad_session.local_session?.session_name}" as "{squad_session.local_user?.name}"
+                Joined Session: "{squad_session.local_session?.session_name}" as "{squad_session.local_user?.username}"
             </div>
         </button>
     {/if}

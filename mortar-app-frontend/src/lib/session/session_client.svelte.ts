@@ -17,11 +17,12 @@ export function registerTargetSync(
         
         const user_target : Point | null = mortar_state.target_position;
         if (user_target) {
-            session_interface.addTarget({
-                user_id : session_state.local_user.id,
-                x : user_target.x,
-                y : user_target.y
-            })
+            session_interface.add_target(
+                session_state.local_session.id,
+                session_state.local_user.id,
+                user_target.x,
+                user_target.y
+            )
         }
     })
 }

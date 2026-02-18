@@ -17,7 +17,6 @@ pub struct JoinSessionParams {
 
 #[derive(Deserialize)]
 pub struct LeaveSessionParams{
-    pub session_id: i32,
     pub user_id: i32,
 }
 

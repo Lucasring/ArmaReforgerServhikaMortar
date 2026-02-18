@@ -6,7 +6,7 @@ RUN USER=root cargo new --bin rust_backend
 WORKDIR /rust_backend
 
 # Copy manifests and build dependencies (this layer is cached)
-COPY ./Cargo.toml ./Cargo.lock ./
+COPY ./Cargo.toml ./
 COPY ./.sqlx ./.sqlx
 ENV SQLX_OFFLINE=true
 

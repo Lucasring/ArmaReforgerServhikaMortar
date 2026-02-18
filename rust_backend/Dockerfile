@@ -7,6 +7,9 @@ WORKDIR /rust_backend
 
 # Copy manifests and build dependencies (this layer is cached)
 COPY ./Cargo.toml ./Cargo.lock ./
+COPY ./.sqlx ./.sqlx
+ENV SQLX_OFFLINE=true
+
 RUN cargo build --release
 RUN rm src/*.rs
 

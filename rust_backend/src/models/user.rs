@@ -70,3 +70,19 @@ pub async fn delete_user(
     ).fetch_one(executor)
     .await
 }
+
+pub async fn get_all_users_in_session(
+    session_id : i32,
+    executor : &mut PgConnection
+) -> Result<Vec<Users>, sqlx::Error> {
+    sqlx::query_as!(
+        Users,
+        r#"
+            SELECT * 
+            FROM users
+            WHERE session_id = $1
+        "#,
+        session_id
+    ).fetch_all(executor)
+    .await
+}

@@ -1,8 +1,6 @@
-pub mod models;
-pub mod routes;
-pub mod utils;
-
-use crate::routes::{route_join_session, route_create_or_update_target};
+use rust_backend::routes::{
+    route_create_or_update_target, route_get_session_data, route_join_session, route_leave_session
+};
 
 use axum::{routing::post, Router};
 use sqlx::{PgPool};
@@ -20,6 +18,8 @@ async fn main() {
     // Build our application with a single route
     let app = Router::new()
         .route("/api/join-session", post(route_join_session))
+        .route("/api/leave-session", post(route_leave_session))
+        .route("/api/get-session-data", post(route_get_session_data))
         .route("/api/add-target", post(route_create_or_update_target))
         .with_state(pool);
 

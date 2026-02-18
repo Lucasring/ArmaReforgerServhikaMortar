@@ -43,3 +43,19 @@ pub async fn upsert_target(
     ).fetch_one(executor)
     .await
 }
+
+pub async fn get_all_targets_in_session(
+    session_id : i32,
+    executor : &mut PgConnection
+) -> Result<Vec<Target>, sqlx::Error> {
+    sqlx::query_as!(
+        Target,
+        r#"
+            SELECT * 
+            FROM target
+            WHERE session_id = $1
+        "#,
+        session_id
+    ).fetch_all(executor)
+    .await
+}

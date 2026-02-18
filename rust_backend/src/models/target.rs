@@ -28,18 +28,18 @@ pub async fn upsert_target(
     sqlx::query_as!(
         Target,
         r#"
-            INSERT INTO target (x, y, session_id, user_id)
+            INSERT INTO target (session_id, user_id, x, y)
                 VALUES ($1, $2, $3, $4)
             ON CONFLICT (session_id, user_id)
             DO UPDATE SET 
                 x = EXCLUDED.x,
                 y = EXCLUDED.y
-            RETURNING id, x, y, session_id, user_id
+            RETURNING id, session_id, user_id, x, y 
         "#,
+        session_id,
+        user_id,
         target_point.0,
         target_point.1,
-        session_id,
-        user_id
     ).fetch_one(executor)
     .await
 }
@@ -51,7 +51,7 @@ pub async fn get_all_targets_in_session(
     sqlx::query_as!(
         Target,
         r#"
-            SELECT * 
+            SELECT id, session_id, user_id, x, y
             FROM target
             WHERE session_id = $1
         "#,

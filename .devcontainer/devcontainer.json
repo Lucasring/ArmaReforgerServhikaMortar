@@ -28,10 +28,7 @@
       ]
     }
   },
-  "mounts": [
-    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
-    "source=${localWorkspaceFolderBasename}-rust-target,target=${containerWorkspaceFolder}/rust_backend/target,type=volume"
-  ],
+  "mounts": [],
   "forwardPorts": [5173, 8000, 5432], // Added 5432 for Postgres
   "postCreateCommand": "cargo install sqlx-cli --no-default-features --features postgres && bash .devcontainer/setup.sh"
 }

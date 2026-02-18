@@ -46,7 +46,6 @@ export class SquadSessionContext {
         this.local_session = response.session;
         this.local_user = response.user;
         this.is_session_joined = true;
-
         this.startSyncInterval();
     }
 
@@ -58,8 +57,8 @@ export class SquadSessionContext {
         if (!this.local_session || !this.local_user) return;
 
         session_interface.leave_session(this.local_user.id)
-        this.stopSyncInterval()
         this.is_session_joined = false;
+        this.stopSyncInterval()
     }
 
     /**
@@ -73,7 +72,7 @@ export class SquadSessionContext {
             return;
         }
 
-        session_interface.get_session_data(this.local_user.id).then((response) => {
+        session_interface.get_session_data(this.local_session.id).then((response) => {
             this.targets = response.targets
             this.users = response.users
         }).catch(err => {

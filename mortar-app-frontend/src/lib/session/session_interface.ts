@@ -2,7 +2,7 @@ import type {
     JoinSessionParams, JoinSessionResponse,
     LeaveSessionParams, LeaveSessionResponse, 
     AddTargetParams, AddTargetResponse,
-    GetSessionDataParams, GetSessionDataResposne,
+    GetSessionDataResposne,
 } from "$lib/session/session_types"
 
 /** Base URL for all API requests */
@@ -18,7 +18,7 @@ const DEBUG = import.meta.env.DEV;
  */
 function debug(message: string, data?: unknown): void {
     if (DEBUG) {
-        console.log(`[API] ${message}`, data);
+        console.debug(`[API] ${message}`, data);
     }
 }
 
@@ -90,7 +90,7 @@ export const session_interface = {
     async join_session(session_name : string, user_name : string) : Promise<JoinSessionResponse> {
         const request_body : JoinSessionParams = {
             session_name : session_name,
-            username : user_name
+            user_name : user_name
         }
 
         const response : Promise<JoinSessionResponse> = request<JoinSessionResponse>(
@@ -140,7 +140,7 @@ export const session_interface = {
         }
 
         const response : Promise<AddTargetResponse> = request<AddTargetResponse>(
-            '/leave-session', 
+            '/add-target', 
             {
                 method: 'POST',
                 body: JSON.stringify(request_body)
@@ -155,15 +155,13 @@ export const session_interface = {
      * @returns The session update response containing current session state
      */
     async get_session_data(session_id : number) : Promise<GetSessionDataResposne> {
-        const request_body : GetSessionDataParams = {
-            session_id : session_id,
-        }
+        const params = new URLSearchParams({
+            session_id : session_id.toString(),
+        })
 
         const response : Promise<GetSessionDataResposne> = request<GetSessionDataResposne>(
-            '/leave-session', 
-            {
-                method: 'POST',
-                body: JSON.stringify(request_body)
+            `/get-session-data?${params.toString()}`, {
+                method: 'GET',
             });
 
         return response;

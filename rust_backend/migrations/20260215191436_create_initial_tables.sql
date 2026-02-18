@@ -15,10 +15,10 @@ CREATE TABLE users (
 
 CREATE TABLE target (
     id SERIAL PRIMARY KEY,
-    x REAL NOT NULL,
-    y REAL NOT NULL,
     session_id INTEGER NOT NULL REFERENCES squadsession(id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
 
     CONSTRAINT unique_target_per_user UNIQUE (session_id, user_id)
 );

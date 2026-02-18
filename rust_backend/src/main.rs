@@ -3,7 +3,7 @@ use rust_backend::routes::{
 };
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use axum::{routing::post, Router};
+use axum::{routing::post, routing::get, Router};
 use sqlx::{PgPool};
 use std::net::SocketAddr;
 
@@ -28,7 +28,7 @@ async fn main() {
     let app = Router::new()
         .route("/api/join-session", post(route_join_session))
         .route("/api/leave-session", post(route_leave_session))
-        .route("/api/get-session-data", post(route_get_session_data))
+        .route("/api/get-session-data", get(route_get_session_data))
         .route("/api/add-target", post(route_create_or_update_target))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(pool);

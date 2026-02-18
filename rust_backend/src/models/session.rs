@@ -16,8 +16,13 @@ pub struct JoinSessionParams {
 }
 
 #[derive(Deserialize)]
-pub struct LeaveSessionParams{
+pub struct LeaveSessionParams {
     pub user_id: i32,
+}
+
+#[derive(Deserialize)]
+pub struct GetSessionDataParams {
+    pub session_id: i32,
 }
 
 pub async fn create_squad_session(

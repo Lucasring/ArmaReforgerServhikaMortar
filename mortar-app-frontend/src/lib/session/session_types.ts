@@ -1,6 +1,6 @@
 export interface JoinSessionParams {
     session_name : string;
-    username : string;
+    user_name : string;
 }
 
 export interface JoinSessionResponse {

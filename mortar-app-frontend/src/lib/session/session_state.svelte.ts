@@ -9,7 +9,7 @@ import { getContext, setContext } from 'svelte';
 export class SquadSessionContext {
 
     /** The syncronization interval period */
-    sync_interval_ms : number = 2000;
+    sync_interval_ms : number = 5000;
 
     /** The browsers syncronization handle ID callback */
     sync_interval_id : number | null = null;

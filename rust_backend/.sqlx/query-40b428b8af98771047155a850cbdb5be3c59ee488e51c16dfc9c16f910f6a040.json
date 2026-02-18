@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO users (username, is_active, last_activity_time, session_id)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT (session_id, username)\n            DO UPDATE SET \n                is_active = EXCLUDED.is_active,\n                last_activity_time = EXCLUDED.last_activity_time\n            RETURNING id, username, session_id, is_active, last_activity_time\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "session_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "is_active",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_activity_time",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Bool",
+        "Int8",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "40b428b8af98771047155a850cbdb5be3c59ee488e51c16dfc9c16f910f6a040"
+}

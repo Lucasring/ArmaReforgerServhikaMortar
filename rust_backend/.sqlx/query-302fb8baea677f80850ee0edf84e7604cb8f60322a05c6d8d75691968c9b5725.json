@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO squadsession (session_name)\n                VALUES ($1)\n            ON CONFLICT (session_name) DO UPDATE \n                SET session_name = EXCLUDED.session_name\n                RETURNING id, session_name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "session_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "302fb8baea677f80850ee0edf84e7604cb8f60322a05c6d8d75691968c9b5725"
+}

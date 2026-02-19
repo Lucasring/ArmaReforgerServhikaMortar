@@ -13,9 +13,6 @@
     // Local Consts
     const ring_size : number = 50;
     const dot_size : number = 5;
-     
-    // Drived Values
-    $inspect(targets)
 
 </script>
 
@@ -39,7 +36,7 @@
                 font-size="50px" font-weight="bold" 
                 text-anchor="middle"
             >
-            {session_state.users.find(user => user.id == target.user_id)?.name}
+            {session_state.users.find(user => user.id == target.user_id)?.username}
         </text>
         {/if}
     {/each}

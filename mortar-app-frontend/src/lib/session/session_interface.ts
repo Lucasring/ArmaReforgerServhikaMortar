@@ -1,7 +1,8 @@
 import type {
-    JoinSquadSessionResponse, SquadSessionUpdateResponse,
-    TargetCreateRequest, TargetRemoveRequest, Target,
-    User
+    JoinSessionParams, JoinSessionResponse,
+    LeaveSessionParams, LeaveSessionResponse, 
+    AddTargetParams, AddTargetResponse,
+    GetSessionDataResposne,
 } from "$lib/session/session_types"
 
 /** Base URL for all API requests */
@@ -31,6 +32,7 @@ async function parseJSON<T>(response: Response): Promise<T> {
         return await response.json() as T;
     } catch (parseError) {
         debug('JSON parse error', parseError);
+        console.log(parseError)
         throw new Error('Invalid JSON response from server');
     }
 }
@@ -54,7 +56,7 @@ async function request<T>(endpoint : string, options? : RequestInit) : Promise<T
     };
 
     const fullUrl = `${BACKEND_BASE_URL}${endpoint}`;
-    debug(`${method} ${endpoint}`, { url: fullUrl });
+    debug(`test: ${method} ${endpoint}`, { url: fullUrl });
 
     const response = await fetch(fullUrl, { ...options, headers });
 
@@ -85,17 +87,20 @@ export const session_interface = {
      * @param user_name - The name of the user joining the session
      * @returns The session join response containing session details and user info
      */
-    async joinSession(session_name : string, user_name : string) : Promise<JoinSquadSessionResponse> {
-        const params = new URLSearchParams({
-            session_name,
-            user_name
-        })
+    async join_session(session_name : string, user_name : string) : Promise<JoinSessionResponse> {
+        const request_body : JoinSessionParams = {
+            session_name : session_name,
+            user_name : user_name
+        }
 
-        const endpoint = `/join-session?${params.toString()}`;
-        const data = await request<JoinSquadSessionResponse>(endpoint, { method: 'POST' });
+        const response : Promise<JoinSessionResponse> = request<JoinSessionResponse>(
+            '/join-session', 
+            {
+                method: 'POST',
+                body: JSON.stringify(request_body)
+            });
 
-        localStorage.setItem('squad_name', data.session.session_name);
-        return data;
+        return response;
     },
 
     /**
@@ -103,55 +108,45 @@ export const session_interface = {
      * @param user_id - The ID of the user leaving the session
      * @returns Confirmation response with status
      */
-    async leaveSession(user_id : number) : Promise<{ status : string }> {
-        const params = new URLSearchParams({
-            user_id: user_id.toString()
-        });
-        return request<{ status : string }>(`/leave-session?${params.toString()}`);
-    },
+    async leave_session(user_id : number) : Promise<LeaveSessionResponse> {
+        const request_body : LeaveSessionParams = {
+            user_id : user_id
+        }
 
-    /**
-     * Retrieve all targets for the current session
-     * @returns Array of target objects
-     */
-    async getTargets(): Promise<Target[]> {
-        return request<Target[]>('/target');
+        const response : Promise<LeaveSessionResponse> = request<LeaveSessionResponse>(
+            '/leave-session', 
+            {
+                method: 'POST',
+                body: JSON.stringify(request_body)
+            });
+
+        return response;
     },
 
     /**
      * Create a new target in the session
-     * @param target_request - The target creation request containing target coordinates and details
+     * @param session_id
+     * @param user_id
+     * @param x
+     * @param y
      * @returns The created target object
      */
-    async addTarget(target_request : TargetCreateRequest): Promise<Target> {
-        return request<Target>('/target', {
-            method: 'POST',
-            body: JSON.stringify(target_request)
-        });
-    },
+    async add_target(session_id : number, user_id : number, x : number, y : number): Promise<AddTargetResponse> {
+        const request_body : AddTargetParams = {
+            session_id : session_id,
+            user_id : user_id,
+            x : x,
+            y : y
+        }
 
-    /**
-     * Delete a target from the session
-     * @param target_request - The target removal request containing target ID
-     * @returns The deleted target object
-     */
-    async deleteTarget(target_request : TargetRemoveRequest): Promise<Target> {
-        return request<Target>(`/target`, { 
-            method: 'DELETE',
-            body: JSON.stringify(target_request)
-        });
-    },
+        const response : Promise<AddTargetResponse> = request<AddTargetResponse>(
+            '/add-target', 
+            {
+                method: 'POST',
+                body: JSON.stringify(request_body)
+            });
 
-    /**
-     * Get all users in the current session
-     * @param user_id - The ID of the requesting user
-     * @returns Array of user objects in the session
-     */
-    async getUsers(user_id : number): Promise<User[]> {
-        const params = new URLSearchParams({
-            user_id: user_id.toString()
-        });
-        return request<User[]>(`/user?${params.toString()}`);
+        return response;
     },
 
     /**
@@ -159,11 +154,17 @@ export const session_interface = {
      * @param user_id - The ID of the requesting user
      * @returns The session update response containing current session state
      */
-    async getSessionUpdate(user_id : number) : Promise<SquadSessionUpdateResponse> {
+    async get_session_data(session_id : number) : Promise<GetSessionDataResposne> {
         const params = new URLSearchParams({
-            user_id: user_id.toString()
-        });
-        return request<SquadSessionUpdateResponse>(`/get-session-update?${params.toString()}`);
-    }
+            session_id : session_id.toString(),
+        })
+
+        const response : Promise<GetSessionDataResposne> = request<GetSessionDataResposne>(
+            `/get-session-data?${params.toString()}`, {
+                method: 'GET',
+            });
+
+        return response;
+    },
 
 };

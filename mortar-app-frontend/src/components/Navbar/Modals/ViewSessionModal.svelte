@@ -41,7 +41,7 @@
             {#each squad_session.users as user, idx}
                 <div class="flex py-1 w-full justify-between border-b border-black/20 last:border-b-0">
                     <div class="font-mono">{idx}:</div>
-                    <div class="font-mono">{user.name}</div>
+                    <div class="font-mono">{user.username}</div>
                 </div>
             {/each}
         </div>

@@ -10,8 +10,28 @@ services:
       - backend
 
   backend:
-    build: ./backend
+    build: ./rust_backend
     image: mortar-backend:latest
     container_name: mortar_backend
     expose:
       - "8000"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/mortar_db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    container_name: mortar_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=mortar_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database:/var/lib/postgresql/data
+
+volumes:
+  database:

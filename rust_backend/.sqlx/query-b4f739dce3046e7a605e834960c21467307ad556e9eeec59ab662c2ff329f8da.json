@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO target (session_id, user_id, x, y)\n                VALUES ($1, $2, $3, $4)\n            ON CONFLICT (session_id, user_id)\n            DO UPDATE SET \n                x = EXCLUDED.x,\n                y = EXCLUDED.y\n            RETURNING id, session_id, user_id, x, y \n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "session_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "x",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 4,
+        "name": "y",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Float4",
+        "Float4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b4f739dce3046e7a605e834960c21467307ad556e9eeec59ab662c2ff329f8da"
+}

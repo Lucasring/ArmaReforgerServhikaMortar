@@ -19,7 +19,7 @@
     <!-- Mortar App Title -->
     <div class="h-full relative border-r">
         <div class="font-bold px-4 h-full flex items-center">
-            Mortar App V4.2.0
+            Mortar App V5.0.0
         </div>
     </div>
 
@@ -39,7 +39,7 @@
             class="h-full relative border-r hover:bg-stone-600"
         >
             <div class="font-bold px-4 h-full flex items-center">
-                Joined Session: "{squad_session.local_session?.session_name}" as "{squad_session.local_user?.name}"
+                Joined Session: "{squad_session.local_session?.session_name}" as "{squad_session.local_user?.username}"
             </div>
         </button>
     {/if}

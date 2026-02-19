@@ -24,6 +24,14 @@ async fn main() {
     // Create the DB Pool
     let pool = PgPool::connect(&db_url).await.expect("Failed to connect to DB");
 
+    // Run Migrations
+    tracing::info!("Running database migrations...");
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to run migrations");
+    tracing::info!("Migration successful");
+
     // Build our application with a single route
     let app = Router::new()
         .route("/api/join-session", post(route_join_session))

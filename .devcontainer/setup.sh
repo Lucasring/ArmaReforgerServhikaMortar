@@ -4,7 +4,7 @@
 pip install -r backend/requirements.txt
 
 # Setup Frontend
-cd mortar-app-frontend
+cd frontend
 npm install
 
 # Setup Rust

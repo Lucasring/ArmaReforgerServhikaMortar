@@ -19,7 +19,7 @@ A desktop web application to assist Arma Reforger players in aiming mortars. The
 
 ### Frontend
 
-1. Navigate to the `mortar-app-frontend`
+1. Navigate to the `frontend`
 
 2. Install dependencies:
    ```bash

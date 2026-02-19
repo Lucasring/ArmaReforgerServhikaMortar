@@ -1,6 +1,6 @@
-use rust_backend::models::user::{Users, create_user, delete_user};
-use rust_backend::models::session::{SquadSession, create_squad_session};
-use rust_backend::models::target::{Target, upsert_target};
+use backend::models::user::{Users, create_user, delete_user};
+use backend::models::session::{SquadSession, create_squad_session};
+use backend::models::target::{Target, upsert_target};
 
 #[sqlx::test]
 async fn test_upsert_target_updates_existing(pool: sqlx::PgPool) {

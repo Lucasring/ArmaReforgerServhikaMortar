@@ -1,4 +1,4 @@
-use rust_backend::routes::{
+use backend::routes::{
     route_create_or_update_target, route_get_session_data, route_join_session, route_leave_session
 };
 
@@ -15,7 +15,7 @@ async fn main() {
     // Set up the logging system
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| "rust_backend=debug,tower_http=debug".into()))
+            .unwrap_or_else(|_| "backend=debug,tower_http=debug".into()))
         .with(tracing_subscriber::fmt::layer())
         .init();
 

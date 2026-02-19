@@ -1,30 +1,37 @@
-# --- STAGE 1: Builder ---
-FROM python:3.11-slim AS builder
+# --- Stage 1: Build ---
+FROM rust:slim AS builder
+
+# Create a dummy project to cache dependencies
+RUN USER=root cargo new --bin backend
+WORKDIR /backend
+
+# Copy manifests and build dependencies (this layer is cached)
+COPY ./Cargo.toml ./
+COPY ./.sqlx ./.sqlx
+ENV SQLX_OFFLINE=true
+
+RUN cargo build --release
+RUN rm src/*.rs
+
+# Copy actual source code and build for real
+COPY ./src ./src
+COPY ./migrations ./migrations
+RUN touch src/main.rs
+RUN cargo build --release
+
+# --- Stage 2: Run ---
+FROM debian:bookworm-slim
+
+# Install OpenSSL and CA certificates (needed for SQLx/Postgres)
+RUN apt-get update && apt-get install -y libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install build tools required for psutil
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copy the binary from the builder stage
+COPY --from=builder /backend/target/release/backend .
 
-COPY requirements.txt .
-
-# Install dependencies into a local folder
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
-
-# --- STAGE 2: Final Production Image ---
-FROM python:3.11-slim
-
-WORKDIR /app
-
-# Copy only the installed packages from the builder
-COPY --from=builder /install /usr/local
-
-# Copy source code
-COPY . .
-
+# Expose the port your Axum app is listening on
 EXPOSE 8000
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the binary
+CMD ["./backend"]

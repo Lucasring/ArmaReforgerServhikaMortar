@@ -1,6 +1,0 @@
-fastapi[all]
-fastapi-utils
-sqlmodel
-uvicorn
-typing_inspect
-loguru

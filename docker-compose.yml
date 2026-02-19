@@ -1,7 +1,7 @@
 version: "3"
 services:
   frontend:
-    build: ./mortar-app-frontend
+    build: ./frontend
     image: mortar-frontend:latest
     container_name: mortar_frontend
     ports:
@@ -10,7 +10,7 @@ services:
       - backend
 
   backend:
-    build: ./rust_backend
+    build: ./backend
     image: mortar-backend:latest
     container_name: mortar_backend
     expose:

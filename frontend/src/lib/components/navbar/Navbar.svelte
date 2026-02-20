@@ -1,8 +1,8 @@
 <script lang="ts">
 
     import { getSquadSessionState } from "$lib/session/session_state.svelte";
-    import JoinSessionModal from "./Modals/JoinSessionModal.svelte";
-    import ViewSessionModal from "./Modals/ViewSessionModal.svelte";
+    import JoinSessionModal from "@components/navbar/modals/JoinSessionModal.svelte";
+    import ViewSessionModal from "@components/navbar/modals/ViewSessionModal.svelte";
     
     // Modal States
     let is_join_session_modal_open : boolean = false;
@@ -19,7 +19,7 @@
     <!-- Mortar App Title -->
     <div class="h-full relative border-r">
         <div class="font-bold px-4 h-full flex items-center">
-            Mortar App V5.0.1
+            Mortar App V5.0.2
         </div>
     </div>
 

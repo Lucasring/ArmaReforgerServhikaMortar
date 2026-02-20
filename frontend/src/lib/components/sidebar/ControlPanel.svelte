@@ -1,8 +1,8 @@
 <script lang="ts">
-    import ControlPanelCache from "./ControlPanelComponents/ControlPanelCache.svelte";
-    import MortarInputPanel from "./ControlPanelComponents/MortarInputPanel.svelte";
-    import CalculationsPanel from "./ControlPanelComponents/CalculationsPanel.svelte";
-    import InstructionsPanel from "./ControlPanelComponents/InstructionsPanel.svelte";
+    import ControlPanelCache from "@components/sidebar/panels/ControlPanelCache.svelte";
+    import MortarInputPanel from "@components/sidebar/panels/MortarInputPanel.svelte";
+    import CalculationsPanel from "@components/sidebar/panels/CalculationsPanel.svelte";
+    import InstructionsPanel from "@components/sidebar/panels/InstructionsPanel.svelte";
 </script>
 
 <div class="flex flex-col gap-4 w-75 p-5 bg-stone-700 h-screen overflow-y-auto">

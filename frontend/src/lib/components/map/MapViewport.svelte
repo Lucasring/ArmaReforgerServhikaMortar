@@ -6,7 +6,7 @@
 	import type { CanvasDoubleClickEvent } from 'openseadragon';
 	import { getMortarState, MortarState } from '$lib/mortar_state.svelte';
 	import { pageToWorldMeters } from '$lib/map/map_primatives';
-    import MapCanvas from './MapCanvas.svelte';
+    import MapCanvas from '@components/map/MapCanvas.svelte';
 
     interface ContextMenu {
         is_hidden : boolean;

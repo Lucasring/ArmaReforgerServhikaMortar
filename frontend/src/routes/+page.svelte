@@ -1,12 +1,12 @@
 <script lang='ts'>
 	import { onMount } from "svelte";
-    import ControlPanel from "../components/ControlPanel.svelte";
-    import NavBar from "../components/Navbar/Navbar.svelte";
+    import ControlPanel from '@components/sidebar/ControlPanel.svelte'
+    import NavBar from "@components/navbar/Navbar.svelte";
 
     let MapViewport : any | null = $state<any>(null);
 
     onMount(async () => {
-        MapViewport = (await import("../components/MapViewport.svelte")).default;
+        MapViewport = (await import("@components/map/MapViewport.svelte")).default;
     });
 
 </script>

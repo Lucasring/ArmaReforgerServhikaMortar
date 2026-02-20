@@ -14,10 +14,10 @@
 	import { getMortarState, MortarState } from '$lib/mortar_state.svelte';
     
     // Canvas Layers
-    import MortarLayer from '../CanvasLayers/MortarLayer.svelte';
-    import TargetLayer from '../CanvasLayers/TargetLayer.svelte';
-    import CrosshairLayer from '../CanvasLayers/CrosshairLayer.svelte';
-    import SessionTargetLayer from '../CanvasLayers/SessionTargetLayer.svelte';
+    import MortarLayer from '@components/map/canvas_layers/MortarLayer.svelte';
+    import TargetLayer from '@components/map/canvas_layers/TargetLayer.svelte';
+    import CrosshairLayer from '@components/map/canvas_layers/CrosshairLayer.svelte';
+    import SessionTargetLayer from '@components/map/canvas_layers/SessionTargetLayer.svelte';
 
     // --- Variables ---
     let { osd_viewer } : Props = $props();
